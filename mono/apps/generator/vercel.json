@@ -1,0 +1,6 @@
+{
+  "buildCommand": "cd ../.. && yarn install && yarn build && cd apps/generator && yarn build",
+  "outputDirectory": ".next",
+  "installCommand": "yarn install",
+  "ignoreCommand": "exit 0"
+}
