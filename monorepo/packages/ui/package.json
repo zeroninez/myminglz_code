@@ -1,6 +1,8 @@
 {
   "name": "@repo/ui",
   "version": "0.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "sideEffects": [
     "**/*.css"
   ],
@@ -8,8 +10,12 @@
     "dist"
   ],
   "exports": {
-    "./styles.css": "./dist/index.css",
-    "./*": "./dist/*.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./styles.css": "./dist/index.css"
   },
   "license": "MIT",
   "scripts": {

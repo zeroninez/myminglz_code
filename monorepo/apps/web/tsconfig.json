@@ -5,7 +5,11 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "paths": {
+      "@repo/ui": ["../packages/ui/index.ts"],
+      "@repo/ui/*": ["../packages/ui/*"]
+    }
   },
   "include": [
     "**/*.ts",
@@ -14,5 +18,6 @@
     "next.config.ts",
     ".next/types/**/*.ts"
   ],
+
   "exclude": ["node_modules"]
 }
