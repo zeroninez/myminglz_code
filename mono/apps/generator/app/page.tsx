@@ -75,39 +75,35 @@ export default function GeneratorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-500 to-blue-600 p-4">
-      <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
-            🎫 쿠폰 발급기
-          </h1>
+    <>
+      <h1 className="text-2xl w-full has-first: font-bold text-center p-6 text-gray-800">
+        🎫 쿠폰 발급기
+      </h1>
 
-          <div className="space-y-4">
+      <div className="space-y-4 p-6 w-full h-full flex flex-col items-center justify-center">
+        <button
+          onClick={handleGenerateCode}
+          disabled={isLoading}
+          className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors disabled:opacity-50"
+        >
+          {isLoading ? "코드 생성 중..." : "🎲 랜덤 코드 생성"}
+        </button>
+
+        {generatedCode && (
+          <div className="bg-gray-50 p-4 rounded-lg text-center">
+            <p className="text-sm text-gray-600 mb-2">생성된 코드:</p>
+            <p className="text-2xl font-mono font-bold text-blue-600 mb-4">
+              {generatedCode}
+            </p>
             <button
-              onClick={handleGenerateCode}
+              onClick={handleSaveCode}
               disabled={isLoading}
-              className="w-full bg-purple-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-600 transition-colors disabled:opacity-50"
+              className="bg-green-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
             >
-              {isLoading ? "코드 생성 중..." : "🎲 랜덤 코드 생성"}
+              {isLoading ? "저장 중..." : "📋 코드 복사 & 저장"}
             </button>
-
-            {generatedCode && (
-              <div className="bg-gray-50 p-4 rounded-lg text-center">
-                <p className="text-sm text-gray-600 mb-2">생성된 코드:</p>
-                <p className="text-2xl font-mono font-bold text-blue-600 mb-4">
-                  {generatedCode}
-                </p>
-                <button
-                  onClick={handleSaveCode}
-                  disabled={isLoading}
-                  className="bg-green-500 text-white py-2 px-6 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? "저장 중..." : "📋 코드 복사 & 저장"}
-                </button>
-              </div>
-            )}
           </div>
-        </div>
+        )}
       </div>
 
       {/* 모달 */}
@@ -138,6 +134,6 @@ export default function GeneratorPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }

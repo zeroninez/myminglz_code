@@ -66,45 +66,39 @@ export default function ValidatorPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-500 to-blue-600 p-4">
-      <div className="max-w-md mx-auto">
-        <div className="bg-white rounded-lg shadow-xl p-6">
-          <h1 className="text-2xl font-bold text-center mb-8 text-gray-800">
-            ✅ 쿠폰 확인기
-          </h1>
+    <>
+      <h1 className="text-2xl font-bold text-center w-full h-fit p-6 text-gray-800">
+        ✅ 쿠폰 확인기
+      </h1>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                쿠폰 코드 입력
-              </label>
-              <input
-                type="text"
-                value={validationCode}
-                onChange={(e) =>
-                  setValidationCode(e.target.value.toUpperCase())
-                }
-                onKeyPress={handleKeyPress}
-                placeholder="예: ABC12345"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-center text-lg"
-                maxLength={8}
-                autoFocus
-              />
-            </div>
+      <div className="space-y-4 w-full h-full flex flex-col items-center justify-center p-6">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            쿠폰 코드 입력
+          </label>
+          <input
+            type="text"
+            value={validationCode}
+            onChange={(e) => setValidationCode(e.target.value.toUpperCase())}
+            onKeyPress={handleKeyPress}
+            placeholder="예: ABC12345"
+            className="w-full p-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 font-mono text-center text-lg"
+            maxLength={8}
+            autoFocus
+          />
+        </div>
 
-            <button
-              onClick={handleValidateCode}
-              disabled={isLoading || !validationCode.trim()}
-              className="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
-            >
-              {isLoading ? "확인 중..." : "🔍 코드 확인하기"}
-            </button>
+        <button
+          onClick={handleValidateCode}
+          disabled={isLoading || !validationCode.trim()}
+          className="w-full bg-green-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-600 transition-colors disabled:opacity-50"
+        >
+          {isLoading ? "확인 중..." : "🔍 코드 확인하기"}
+        </button>
 
-            <div className="text-center text-sm text-gray-600">
-              <p>방문 증명을 위해 발급받은</p>
-              <p>쿠폰 코드를 입력해주세요</p>
-            </div>
-          </div>
+        <div className="text-center text-sm text-gray-600">
+          <p>방문 증명을 위해 발급받은</p>
+          <p>쿠폰 코드를 입력해주세요</p>
         </div>
       </div>
 
@@ -136,6 +130,6 @@ export default function ValidatorPage() {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 }
