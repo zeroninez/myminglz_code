@@ -1,10 +1,16 @@
 import { Header } from "./Header";
 
-export const Layout = ({ children }: { children: React.ReactNode }) => {
+export const Layout = ({
+  title,
+  children,
+}: {
+  title?: string;
+  children: React.ReactNode;
+}) => {
   return (
     <html lang="en">
       <body className={`w-screen min-h-dvh`}>
-        <Header />
+        <Header title={title} />
         {children}
       </body>
     </html>

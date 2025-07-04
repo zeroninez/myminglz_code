@@ -1,2 +1,93 @@
 /* Component-level styles for the UI package */
 @import "tailwindcss";
+
+/* initial styles */
+@layer base {
+
+  * {
+    box-sizing: border-box;
+    word-break: keep-all;
+  }
+
+  div {
+    white-space: pre-wrap;
+  }
+
+  :root {
+    --sat: env(safe-area-inset-top);
+    --sar: env(safe-area-inset-right);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+  }
+
+  input,
+  textarea {
+    appearance: none;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+  }
+
+  input:focus,
+  textarea:focus {
+    outline: none;
+    caret-color: #000000;
+  }
+
+  select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  }
+
+  select::-ms-expand {
+    /* 화살표 없애기 for IE10, 11*/
+    display: none;
+  }
+
+  #__next,
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    /* 16px */
+    background: #fff;
+    font-size: 100%;
+    overscroll-behavior: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+  }
+
+  /* ( 크롬, 사파리, 오페라, 엣지 ) 동작 */
+  ::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scroll-bar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .no-scroll-bar::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera*/
+  }
+
+  .checking {
+    /*  border border-red-500 border-dashed */
+    border: 1px solid red;
+    border-style: dashed;
+  }
+
+  .transition {
+    /* transition-all duration-500 ease-in-out */
+    transition: all 0.5s ease-in-out;
+  }
+
+}

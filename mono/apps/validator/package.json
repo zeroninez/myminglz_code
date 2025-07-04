@@ -11,8 +11,9 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/ui": "*",
     "@repo/api": "*",
+    "@repo/ui": "*",
+    "jsqr": "^1.4.0",
     "next": "^15.3.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

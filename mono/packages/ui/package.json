@@ -40,5 +40,9 @@
     "eslint": "^9.30.0",
     "tailwindcss": "^4.1.5",
     "typescript": "5.8.2"
+  },
+  "dependencies": {
+    "motion": "^12.23.0",
+    "react-modal-sheet": "^4.4.0"
   }
 }
