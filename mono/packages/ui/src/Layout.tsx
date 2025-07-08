@@ -10,7 +10,7 @@ export const Layout = ({
   return (
     <html lang="en">
       <body className={`w-screen min-h-dvh`}>
-        <Header title={title} />
+        {/* <Header title={title} /> */}
         {children}
       </body>
     </html>

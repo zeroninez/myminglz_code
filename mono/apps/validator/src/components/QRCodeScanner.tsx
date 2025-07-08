@@ -1,3 +1,4 @@
+// apps/validator/src/components/QRCodeScanner.tsx (업데이트된 버전)
 import React, { useRef, useState } from "react";
 import jsQR from "jsqr";
 
@@ -54,17 +55,15 @@ export const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
                 canvas.height
               );
 
-              // QR 코드 스캔 (다양한 옵션으로 시도)
-              let qrCode = jsQR(
-                imageData.data,
-                imageData.width,
-                imageData.height,
-                {
-                  inversionAttempts: "dontInvert",
-                }
-              );
+              // QR 코드 스캔 시도 (여러 옵션으로)
+              let qrCode = null;
 
-              // 첫 번째 시도 실패 시 색상 반전하여 재시도
+              // 1차 시도: 기본 설정
+              qrCode = jsQR(imageData.data, imageData.width, imageData.height, {
+                inversionAttempts: "dontInvert",
+              });
+
+              // 2차 시도: 색상 반전
               if (!qrCode) {
                 qrCode = jsQR(
                   imageData.data,
@@ -76,7 +75,7 @@ export const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
                 );
               }
 
-              // 두 번째 시도 실패 시 모든 옵션으로 재시도
+              // 3차 시도: 모든 옵션
               if (!qrCode) {
                 qrCode = jsQR(
                   imageData.data,
@@ -88,16 +87,68 @@ export const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
                 );
               }
 
-              if (qrCode) {
-                resolve({ result: qrCode.data, imageUrl });
+              // 4차 시도: 더 작은 영역으로 스캔 (중앙 부분)
+              if (!qrCode && canvas.width > 100 && canvas.height > 100) {
+                const centerX = Math.floor(canvas.width * 0.25);
+                const centerY = Math.floor(canvas.height * 0.25);
+                const centerWidth = Math.floor(canvas.width * 0.5);
+                const centerHeight = Math.floor(canvas.height * 0.5);
+
+                const centerImageData = ctx.getImageData(
+                  centerX,
+                  centerY,
+                  centerWidth,
+                  centerHeight
+                );
+
+                qrCode = jsQR(
+                  centerImageData.data,
+                  centerImageData.width,
+                  centerImageData.height,
+                  {
+                    inversionAttempts: "attemptBoth",
+                  }
+                );
+              }
+
+              if (qrCode && qrCode.data) {
+                // QR 코드에서 실제 쿠폰 코드 추출
+                let extractedCode = qrCode.data.trim();
+
+                // URL 형태인 경우 마지막 부분에서 코드 추출
+                if (extractedCode.includes("/")) {
+                  const parts = extractedCode.split("/");
+                  extractedCode = parts[parts.length - 1] ?? "";
+                }
+
+                // 쿼리 파라미터 제거
+                if (extractedCode.includes("?")) {
+                  extractedCode = extractedCode.split("?")[0] ?? "";
+                }
+
+                // 8자리 영숫자 패턴 검증
+                const codePattern = /^[A-Z0-9]{8}$/;
+                if (codePattern.test(extractedCode.toUpperCase())) {
+                  resolve({
+                    result: extractedCode.toUpperCase(),
+                    imageUrl,
+                  });
+                } else {
+                  // 패턴이 맞지 않으면 원본 데이터 그대로 반환
+                  resolve({
+                    result: extractedCode.toUpperCase(),
+                    imageUrl,
+                  });
+                }
               } else {
                 reject(
                   new Error(
-                    "QR 코드를 찾을 수 없습니다. 이미지가 선명하고 QR 코드가 잘 보이는지 확인해주세요."
+                    "QR 코드를 찾을 수 없습니다.\n이미지가 선명하고 QR 코드가 잘 보이는지 확인해주세요."
                   )
                 );
               }
             } catch (error) {
+              console.error("QR 코드 처리 오류:", error);
               reject(new Error("이미지 처리 중 오류가 발생했습니다."));
             }
           };
@@ -127,6 +178,18 @@ export const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
   ): Promise<void> => {
     const file = event.target.files?.[0];
     if (!file) return;
+
+    // 파일 타입 검증
+    if (!file.type.startsWith("image/")) {
+      onScanError?.("이미지 파일만 업로드할 수 있습니다.");
+      return;
+    }
+
+    // 파일 크기 검증 (10MB 제한)
+    if (file.size > 10 * 1024 * 1024) {
+      onScanError?.("파일 크기는 10MB 이하여야 합니다.");
+      return;
+    }
 
     setIsLoading(true);
 
@@ -169,7 +232,14 @@ export const QRCodeScanner: React.FC<QRCodeScannerProps> = ({
         disabled={isLoading}
         className={className}
       >
-        {isLoading ? "스캔 중..." : text}
+        {isLoading ? (
+          <div className="flex items-center justify-center space-x-2">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+            <span>스캔 중...</span>
+          </div>
+        ) : (
+          text
+        )}
       </button>
     </>
   );

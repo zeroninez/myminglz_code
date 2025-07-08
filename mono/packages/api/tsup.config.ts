@@ -1,9 +1,10 @@
+// packages/api/tsup.config.ts
 import { defineConfig } from "tsup";
 
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["cjs", "esm"],
-  dts: false, // DTS 생성 비활성화
+  dts: true, // 🔥 이거를 true로 변경!
   splitting: false,
   sourcemap: true,
   clean: true,

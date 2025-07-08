@@ -1,12 +1,17 @@
 {
   "name": "@repo/api",
   "version": "0.0.0",
+  "description": "멀티 장소 쿠폰 시스템 API",
   "private": true,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.mjs",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
       "require": "./dist/index.js"
     }
   },
