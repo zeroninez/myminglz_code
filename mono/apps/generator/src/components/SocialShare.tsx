@@ -36,9 +36,40 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
   };
 
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  // Page Visibility API로 앱 복귀 감지
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      // 공유 중이고 브라우저가 다시 보이게 되었을 때
+      if (!document.hidden && countdown > 0) {
+        // 1초 후 완료 확인 다이얼로그 표시 (사용자가 정착할 시간)
+        setTimeout(() => {
+          if (countdown > 5) {
+            // 카운트다운을 5초로 단축 (빠른 완료 유도)
+            setCountdown(5);
+          }
+        }, 1000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [countdown]);
+
   // 카운트다운 시작
   const startCountdown = () => {
-    setCountdown(10); // 10초 카운트다운
+    setCountdown(15); // 15초로 연장 (앱 복귀 감지로 단축될 수 있음)
     timerRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
@@ -54,18 +85,8 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }, 1000);
   };
 
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
-  // Web Share API (파일 포함) - iOS Safari 인스타그램 오류 해결
+  // Web Share API (iOS Safari 인스타그램 오류 해결)
   const shareWithFile = async () => {
-    // 타입 안전성을 위한 체크
     const nav = navigator as any;
     
     if (!nav.share) {
@@ -88,11 +109,10 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         files: [photoFile]
       };
 
-      // 파일 공유 지원 확인
       if (nav.canShare && nav.canShare(shareOptions)) {
         await nav.share(shareOptions);
       } else {
-        // 파일 공유 미지원 시 텍스트만 공유 (title 여전히 빈 문자열)
+        // 파일 공유 미지원 시 텍스트만 공유
         await nav.share({
           title: "",
           text: shareData.text,
@@ -100,7 +120,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         });
       }
       
-      // 공유 시도 후 10초 카운트다운 시작
+      // 공유 시도 후 카운트다운 시작
       setIsSharing(false);
       startCountdown();
       
@@ -113,7 +133,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
   };
 
-  // 수동 완료 버튼
+  // 수동 완료 버튼 (배달의민족, 요기요 방식)
   const handleManualComplete = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -139,22 +159,32 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     );
   }
 
-  // 카운트다운 중인 경우
+  // 카운트다운 중인 경우 (스마트한 메시지 표시)
   if (countdown > 0) {
     return (
       <div className="share-waiting text-center p-6 bg-blue-50 rounded-lg">
         <div className="text-6xl mb-4">⏱️</div>
         <h3 className="text-xl font-bold text-blue-800 mb-2">공유 대기 중...</h3>
         <p className="text-blue-600 mb-6">
-          SNS 공유를 완료하셨나요?
-          <br />
-          <span className="font-bold text-2xl text-blue-800">{countdown}초</span> 후 자동으로 다음 단계로 넘어갑니다
+          {countdown > 10 ? (
+            <>
+              인스타그램에서 <strong>릴스/게시물/스토리/메시지</strong> 중 하나를 선택하셨나요?
+              <br />
+              <span className="font-bold text-2xl text-blue-800">{countdown}초</span> 후 자동으로 다음 단계로 넘어갑니다
+            </>
+          ) : (
+            <>
+              공유를 완료하셨다면 아래 버튼을 눌러주세요!
+              <br />
+              <span className="font-bold text-2xl text-red-600">{countdown}초</span> 후 자동 완료됩니다
+            </>
+          )}
         </p>
         
         <div className="space-y-4">
           <button
             onClick={handleManualComplete}
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold text-lg"
+            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold text-lg transform transition-all hover:scale-105"
           >
             ✅ 공유 완료했어요!
           </button>
@@ -175,7 +205,10 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         <div className="mt-4 w-full bg-blue-200 rounded-full h-3">
           <div 
             className="bg-blue-500 h-3 rounded-full transition-all duration-1000"
-            style={{ width: `${((10 - countdown) / 10) * 100}%` }}
+            style={{ 
+              width: `${((15 - countdown) / 15) * 100}%`,
+              backgroundColor: countdown <= 5 ? '#ef4444' : '#3b82f6'
+            }}
           ></div>
         </div>
       </div>
@@ -218,6 +251,10 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
           </div>
           <div className="flex items-start gap-2">
             <span className="text-blue-500 mt-1">•</span>
+            <span><strong>인스타그램:</strong> 릴스/게시물/스토리/메시지 중 선택</span>
+          </div>
+          <div className="flex items-start gap-2">
+            <span className="text-blue-500 mt-1">•</span>
             <span>공유 완료 후 "공유 완료했어요!" 버튼을 눌러주세요</span>
           </div>
         </div>
@@ -251,7 +288,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         <span className="text-lg">💡</span>
         <p className="mt-2">
           공유 완료 후 확인 버튼을 누르거나<br />
-          <span className="font-semibold text-gray-700">10초 후 자동</span>으로 쿠폰 발급 단계로 이동합니다
+          <span className="font-semibold text-gray-700">15초 후 자동</span>으로 쿠폰 발급 단계로 이동합니다
         </p>
       </div>
     </div>
