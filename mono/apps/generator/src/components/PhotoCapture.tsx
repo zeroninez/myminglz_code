@@ -21,6 +21,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +30,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
   // 카메라 시작
   const startCamera = async () => {
     try {
+      setVideoLoaded(false);
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: 'environment', // 후면 카메라 우선
@@ -55,6 +57,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
       setStream(null);
     }
     setIsCapturing(false);
+    setVideoLoaded(false);
   };
 
   // 사진 촬영
@@ -85,6 +88,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
   // 사진 다시 찍기
   const retakePhoto = () => {
     setCapturedPhoto(null);
+    setVideoLoaded(false);
     startCamera();
   };
 
@@ -164,12 +168,33 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
       {/* 카메라 화면 */}
       {isCapturing && (
         <div className="camera-container mb-4">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            className="w-full max-w-md mx-auto rounded-lg"
-          />
+          <div className="video-wrapper relative w-full max-w-md mx-auto bg-black rounded-lg overflow-hidden">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-auto min-h-[300px] object-cover"
+              onLoadedMetadata={() => {
+                console.log('비디오 메타데이터 로드됨');
+                setVideoLoaded(true);
+              }}
+              onCanPlay={() => {
+                console.log('비디오 재생 가능');
+                setVideoLoaded(true);
+              }}
+            />
+            {/* 로딩 표시 */}
+            {!videoLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+                <div className="text-white text-center">
+                  <div className="text-4xl mb-4">📹</div>
+                  <div className="text-lg">카메라 로딩 중...</div>
+                  <div className="text-sm mt-2 opacity-75">잠시만 기다려주세요</div>
+                </div>
+              </div>
+            )}
+          </div>
           <div className="camera-controls mt-4 flex justify-center gap-4">
             <button
               onClick={capturePhoto}
@@ -230,11 +255,27 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
               onClick={() => fileInputRef.current?.click()}
               className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg font-semibold text-lg"
             >
-              📁 갤러리에서 선택하기
+              📷 카메라로 촬영하기 (모바일)
             </button>
             
             <input
               ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
+            <button
+              onClick={() => galleryInputRef.current?.click()}
+              className="bg-gray-500 hover:bg-gray-600 text-white px-8 py-4 rounded-lg font-semibold text-lg"
+            >
+              📁 갤러리에서 선택하기
+            </button>
+            
+            <input
+              ref={galleryInputRef}
               type="file"
               accept="image/*"
               onChange={handleFileSelect}
