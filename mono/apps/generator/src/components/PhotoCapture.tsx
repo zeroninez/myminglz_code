@@ -26,6 +26,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // 카메라 시작
   const startCamera = async () => {
