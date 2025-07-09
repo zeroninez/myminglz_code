@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { EnhancedCouponService } from "@repo/api";
-import { GenerateQrCode } from "@/components";
+import { GenerateQrCode, PhotoCapture, SocialShare } from "@/components";
 import { BottomSheet } from "@repo/ui";
 import { useTimestamp } from "@/hooks";
 import { useParams } from "next/navigation";
@@ -24,6 +24,11 @@ export default function LocationGeneratorPage() {
   const [modalContent, setModalContent] = useState({ type: "", message: "" });
   const [savedImageUrl, setSavedImageUrl] = useState<string | null>(null);
   const [generatedCode, setGeneratedCode] = useState<string>("");
+  
+  // 🆕 새로운 플로우 상태들
+  const [currentStep, setCurrentStep] = useState<'photo' | 'share' | 'coupon'>('photo');
+  const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
+  const [shareCompleted, setShareCompleted] = useState(false);
 
   const qrRef = React.useRef<HTMLCanvasElement>(null);
   const { generateFilename } = useTimestamp();
@@ -61,9 +66,30 @@ export default function LocationGeneratorPage() {
     }
   }, [locationSlug]);
 
-  // 쿠폰 발급 프로세스
+  // 사진 업로드 완료 핸들러
+  const handlePhotoUploaded = (imageUrl: string) => {
+    setUserPhotoUrl(imageUrl);
+    setCurrentStep('share');
+  };
+
+  // 공유 완료 핸들러
+  const handleShareCompleted = () => {
+    setShareCompleted(true);
+    setCurrentStep('coupon');
+  };
+
+  // 에러 핸들러
+  const handleError = (error: string) => {
+    setModalContent({
+      type: "error",
+      message: error,
+    });
+    setShowModal(true);
+  };
+
+  // 쿠폰 발급 프로세스 (공유 완료 후에만 실행)
   const handleGetCoupon = async () => {
-    if (!location) return;
+    if (!location || !shareCompleted) return;
 
     setIsLoading(true);
     setShowModal(true);
@@ -346,65 +372,132 @@ export default function LocationGeneratorPage() {
 
       {/* 메인 컨텐츠 */}
       <div className="max-w-md mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="text-6xl mb-6">🎫</div>
-
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            방문 인증 쿠폰
-          </h2>
-
-          <p className="text-gray-600 mb-8">
-            이 장소를 방문하셨나요?
-            <br />
-            방문 인증 쿠폰을 발급받아
-            <br />
-            연결된 가게에서 혜택을 받으세요!
-          </p>
-
-          <button
-            onClick={handleGetCoupon}
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-4 px-6 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                <span>쿠폰 발급 중...</span>
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          {/* 단계 표시 */}
+          <div className="flex justify-center mb-6">
+            <div className="flex items-center space-x-4">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                currentStep === 'photo' ? 'bg-blue-500 text-white' : 
+                currentStep === 'share' || currentStep === 'coupon' ? 'bg-green-500 text-white' : 
+                'bg-gray-300 text-gray-600'
+              }`}>
+                1
               </div>
-            ) : (
-              <span className="text-lg">🎁 쿠폰 받기</span>
-            )}
-          </button>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              💡 이 쿠폰은 {location.name}과 연결된 가게에서만 사용 가능합니다
-            </p>
+              <div className="w-8 h-0.5 bg-gray-300"></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                currentStep === 'share' ? 'bg-blue-500 text-white' : 
+                currentStep === 'coupon' ? 'bg-green-500 text-white' : 
+                'bg-gray-300 text-gray-600'
+              }`}>
+                2
+              </div>
+              <div className="w-8 h-0.5 bg-gray-300"></div>
+              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                currentStep === 'coupon' ? 'bg-blue-500 text-white' : 
+                'bg-gray-300 text-gray-600'
+              }`}>
+                3
+              </div>
+            </div>
           </div>
+
+          {/* 단계별 컨텐츠 */}
+          {currentStep === 'photo' && (
+            <div>
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-4">📸</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  1단계: 사진 촬영
+                </h2>
+                <p className="text-gray-600">
+                  조형물과 함께 사진을 촬영해주세요
+                </p>
+              </div>
+              <PhotoCapture
+                location={location}
+                onPhotoUploaded={handlePhotoUploaded}
+                onError={handleError}
+              />
+            </div>
+          )}
+
+          {currentStep === 'share' && userPhotoUrl && (
+            <div>
+              <div className="text-center mb-6">
+                <div className="text-6xl mb-4">📱</div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  2단계: SNS 공유
+                </h2>
+                <p className="text-gray-600">
+                  촬영한 사진을 SNS에 공유해주세요
+                </p>
+              </div>
+              <SocialShare
+                location={location}
+                userPhotoUrl={userPhotoUrl}
+                onShareCompleted={handleShareCompleted}
+                onError={handleError}
+              />
+            </div>
+          )}
+
+          {currentStep === 'coupon' && shareCompleted && (
+            <div className="text-center">
+              <div className="text-6xl mb-6">🎫</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                3단계: 쿠폰 발급
+              </h2>
+              <p className="text-gray-600 mb-8">
+                사진 촬영과 SNS 공유가 완료되었습니다!<br />
+                이제 쿠폰을 발급받을 수 있습니다.
+              </p>
+
+              <button
+                onClick={handleGetCoupon}
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-4 px-6 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center space-x-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    <span>쿠폰 발급 중...</span>
+                  </div>
+                ) : (
+                  <span className="text-lg">🎁 쿠폰 받기</span>
+                )}
+              </button>
+
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="text-sm text-gray-500">
+                  💡 이 쿠폰은 {location.name}과 연결된 가게에서만 사용 가능합니다
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 사용 안내 */}
         <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
           <h3 className="font-bold text-gray-900 mb-3 flex items-center">
             <span className="mr-2">📋</span>
-            사용 방법
+            쿠폰 발급 과정
           </h3>
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex items-start space-x-3">
-              <span className="text-emerald-500 font-bold">1.</span>
-              <span>위 버튼을 눌러 방문 인증 쿠폰을 발급받으세요</span>
+              <span className="text-blue-500 font-bold">1.</span>
+              <span>조형물과 함께 사진을 촬영하세요</span>
             </div>
             <div className="flex items-start space-x-3">
-              <span className="text-emerald-500 font-bold">2.</span>
-              <span>연결된 가게를 방문하세요</span>
+              <span className="text-blue-500 font-bold">2.</span>
+              <span>촬영한 사진을 SNS에 공유하세요</span>
             </div>
             <div className="flex items-start space-x-3">
-              <span className="text-emerald-500 font-bold">3.</span>
-              <span>가게에서 쿠폰 코드를 제시하세요</span>
+              <span className="text-blue-500 font-bold">3.</span>
+              <span>공유 완료 후 쿠폰을 발급받으세요</span>
             </div>
             <div className="flex items-start space-x-3">
               <span className="text-emerald-500 font-bold">4.</span>
-              <span>검증 완료 후 혜택을 받으세요</span>
+              <span>연결된 가게에서 쿠폰을 사용하세요</span>
             </div>
           </div>
         </div>

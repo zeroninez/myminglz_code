@@ -46,6 +46,10 @@ export interface Location {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  // 🆕 이미지 관련 필드
+  artwork_image_path?: string;
+  share_title?: string;
+  share_description?: string;
 }
 
 export interface Store {
@@ -210,4 +214,54 @@ export interface StoreConfig extends Store {
     success_message?: string;
     failure_message?: string;
   };
+}
+
+// ===== 🆕 이미지 관련 타입들 =====
+export interface ImageUploadResult {
+  success: boolean;
+  path?: string;
+  publicUrl?: string;
+  error?: string;
+}
+
+export interface ImageDeleteResult {
+  success: boolean;
+  error?: string;
+}
+
+export interface ImageListResult {
+  success: boolean;
+  files?: StorageFile[];
+  error?: string;
+}
+
+export interface StorageFile {
+  name: string;
+  id: string;
+  updated_at: string;
+  created_at: string;
+  last_accessed_at?: string;
+  metadata?: {
+    eTag: string;
+    size: number;
+    mimetype: string;
+    cacheControl: string;
+    lastModified: string;
+    contentLength: number;
+    httpStatusCode: number;
+  };
+}
+
+// ===== 🆕 SNS 공유 관련 타입들 =====
+export interface ShareData {
+  title: string;
+  text: string;
+  url: string;
+  imageUrl?: string;
+}
+
+export interface ShareResult {
+  success: boolean;
+  platform?: 'kakao' | 'instagram' | 'facebook' | 'native' | 'twitter';
+  error?: string;
 }
