@@ -17,80 +17,15 @@ const imageService = new ImageService({
 });
 
 export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptureProps) {
-  const [isCapturing, setIsCapturing] = useState(false);
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [videoLoaded, setVideoLoaded] = useState(false);
   
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
-
-  // 카메라 시작
-  const startCamera = async () => {
-    try {
-      setVideoLoaded(false);
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { 
-          facingMode: 'environment', // 후면 카메라 우선
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        }
-      });
-      
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-      setIsCapturing(true);
-    } catch (error) {
-      console.error('카메라 접근 오류:', error);
-      onError('카메라에 접근할 수 없습니다. 권한을 확인해주세요.');
-    }
-  };
-
-  // 카메라 중지
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    setIsCapturing(false);
-    setVideoLoaded(false);
-  };
-
-  // 사진 촬영
-  const capturePhoto = () => {
-    if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    
-    if (!ctx) return;
-
-    // 캔버스 크기를 비디오 크기에 맞춤
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    // 비디오 프레임을 캔버스에 그리기
-    ctx.drawImage(video, 0, 0);
-
-    // 캔버스를 데이터 URL로 변환
-    const photoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-    setCapturedPhoto(photoDataUrl);
-    
-    // 카메라 중지
-    stopCamera();
-  };
 
   // 사진 다시 찍기
   const retakePhoto = () => {
     setCapturedPhoto(null);
-    setVideoLoaded(false);
-    startCamera();
   };
 
   // 파일 선택 (갤러리에서)
@@ -143,12 +78,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
     }
   };
 
-  // 컴포넌트 언마운트 시 카메라 정리
-  React.useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, []);
+
 
   return (
     <div className="photo-capture-container">
@@ -166,52 +96,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
         </div>
       )}
 
-      {/* 카메라 화면 */}
-      {isCapturing && (
-        <div className="camera-container mb-4">
-          <div className="video-wrapper relative w-full max-w-md mx-auto bg-black rounded-lg overflow-hidden">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              muted
-              className="w-full h-auto min-h-[300px] object-cover"
-              onLoadedMetadata={() => {
-                console.log('비디오 메타데이터 로드됨');
-                setVideoLoaded(true);
-              }}
-              onCanPlay={() => {
-                console.log('비디오 재생 가능');
-                setVideoLoaded(true);
-              }}
-            />
-            {/* 로딩 표시 */}
-            {!videoLoaded && (
-              <div className="absolute inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
-                <div className="text-white text-center">
-                  <div className="text-4xl mb-4">📹</div>
-                  <div className="text-lg">카메라 로딩 중...</div>
-                  <div className="text-sm mt-2 opacity-75">잠시만 기다려주세요</div>
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="camera-controls mt-4 flex justify-center gap-4">
-            <button
-              onClick={capturePhoto}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
-            >
-              📸 촬영
-            </button>
-            <button
-              onClick={stopCamera}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold"
-            >
-              취소
-            </button>
-          </div>
-        </div>
-      )}
+
 
       {/* 촬영된 사진 */}
       {capturedPhoto && (
@@ -240,23 +125,14 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
       )}
 
       {/* 카메라 시작 버튼들 */}
-      {!isCapturing && !capturedPhoto && (
+      {!capturedPhoto && (
         <div className="camera-start-container">
           <div className="flex flex-col gap-4 items-center">
             <button
-              onClick={startCamera}
+              onClick={() => fileInputRef.current?.click()}
               className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg"
             >
               📷 카메라로 촬영하기
-            </button>
-            
-            <div className="text-center text-gray-500">또는</div>
-            
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-lg font-semibold text-lg"
-            >
-              📷 카메라로 촬영하기 (모바일)
             </button>
             
             <input
@@ -267,6 +143,8 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
               onChange={handleFileSelect}
               className="hidden"
             />
+            
+            <div className="text-center text-gray-500">또는</div>
             
             <button
               onClick={() => galleryInputRef.current?.click()}
@@ -285,9 +163,6 @@ export function PhotoCapture({ location, onPhotoUploaded, onError }: PhotoCaptur
           </div>
         </div>
       )}
-
-      {/* 숨겨진 캔버스 */}
-      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 } 
