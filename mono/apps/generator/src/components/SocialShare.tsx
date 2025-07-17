@@ -1,7 +1,7 @@
 // apps/generator/src/components/SocialShare.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import type { Location, ShareData } from "@repo/api";
 
 interface SocialShareProps {
@@ -14,6 +14,29 @@ interface SocialShareProps {
 export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError }: SocialShareProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [shareCompleted, setShareCompleted] = useState(false);
+  const shareAttemptRef = useRef<number | null>(null);
+
+  // 앱 전환 감지
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && shareAttemptRef.current) {
+        // 공유 시도 후 페이지로 돌아왔을 때
+        const timeSinceShare = Date.now() - shareAttemptRef.current;
+        
+        // 1초 이상 경과했다면 공유 프로세스가 완료된 것으로 간주
+        if (timeSinceShare > 1000) {
+          setShareCompleted(true);
+          onShareCompleted();
+          shareAttemptRef.current = null;  // 초기화
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [onShareCompleted]);
 
   const shareData: ShareData = {
     title: location.share_title || `${location.name}에서 찍은 사진!`,
@@ -44,6 +67,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
 
     setIsSharing(true);
+    shareAttemptRef.current = Date.now();  // 공유 시도 시간 기록
     
     try {
       const photoFile = await getPhotoFile();
@@ -69,12 +93,17 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         });
       }
       
-      // 공유 다이얼로그가 닫히면 바로 완료 처리
-      setShareCompleted(true);
-      onShareCompleted();
+      // 카카오톡과 같은 즉시 공유의 경우
+      if (!document.hidden) {
+        setShareCompleted(true);
+        onShareCompleted();
+        shareAttemptRef.current = null;
+      }
+      // 인스타그램과 같은 앱 전환이 필요한 경우는 visibility 이벤트에서 처리
       
     } catch (error: any) {
       setIsSharing(false);
+      shareAttemptRef.current = null;
       if (error.name !== 'AbortError') {
         console.error('공유 오류:', error);
         onError(`공유 중 오류가 발생했습니다: ${error.message}`);
