@@ -14,7 +14,6 @@ interface SocialShareProps {
 export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError }: SocialShareProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [shareCompleted, setShareCompleted] = useState(false);
-  const [hasShared, setHasShared] = useState(false);
 
   const shareData: ShareData = {
     title: location.share_title || `${location.name}에서 찍은 사진!`,
@@ -35,32 +34,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
   };
 
-  // Page Visibility API로 앱 복귀 감지
-  useEffect(() => {
-    // Page Visibility API 지원 확인
-    if (typeof document.hidden === 'undefined') {
-      console.warn('Page Visibility API가 지원되지 않는 브라우저입니다.');
-      return;
-    }
-
-    const handleVisibilityChange = () => {
-      // 공유를 시도했고 브라우저가 다시 보이게 되었을 때
-      if (!document.hidden && hasShared && !shareCompleted) {
-        console.log('사용자가 공유 후 브라우저로 돌아왔습니다.');
-        // 바로 완료 처리
-        setShareCompleted(true);
-        onShareCompleted();
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [hasShared, shareCompleted, onShareCompleted]);
-
-  // Web Share API (iOS Safari 인스타그램 오류 해결)
+  // Web Share API
   const shareWithFile = async () => {
     const nav = navigator as any;
     
@@ -84,10 +58,10 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         files: [photoFile]
       };
 
+      // 공유 다이얼로그가 닫힐 때까지 대기
       if (nav.canShare && nav.canShare(shareOptions)) {
         await nav.share(shareOptions);
       } else {
-        // 파일 공유 미지원 시 텍스트만 공유
         await nav.share({
           title: "",
           text: shareData.text,
@@ -95,9 +69,9 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         });
       }
       
-      // 공유 시도 표시
-      setHasShared(true);
-      setIsSharing(false);
+      // 공유 다이얼로그가 닫히면 바로 완료 처리
+      setShareCompleted(true);
+      onShareCompleted();
       
     } catch (error: any) {
       setIsSharing(false);
@@ -106,12 +80,6 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         onError(`공유 중 오류가 발생했습니다: ${error.message}`);
       }
     }
-  };
-
-  // 수동 완료 버튼 (백업용)
-  const handleManualComplete = () => {
-    setShareCompleted(true);
-    onShareCompleted();
   };
 
   if (shareCompleted) {
@@ -159,15 +127,6 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         >
           {isSharing ? "공유 중..." : "📤 SNS에 공유하기"}
         </button>
-
-        {hasShared && (
-          <button
-            onClick={handleManualComplete}
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold text-lg"
-          >
-            ✅ 공유 완료했어요!
-          </button>
-        )}
       </div>
     </div>
   );
