@@ -1,7 +1,7 @@
 // apps/generator/src/components/SocialShare.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import type { Location, ShareData } from "@repo/api";
 
 interface SocialShareProps {
@@ -14,8 +14,7 @@ interface SocialShareProps {
 export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError }: SocialShareProps) {
   const [isSharing, setIsSharing] = useState(false);
   const [shareCompleted, setShareCompleted] = useState(false);
-  const [countdown, setCountdown] = useState(0);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [hasShared, setHasShared] = useState(false);
 
   const shareData: ShareData = {
     title: location.share_title || `${location.name}에서 찍은 사진!`,
@@ -36,27 +35,21 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
   };
 
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
   // Page Visibility API로 앱 복귀 감지
   useEffect(() => {
+    // Page Visibility API 지원 확인
+    if (typeof document.hidden === 'undefined') {
+      console.warn('Page Visibility API가 지원되지 않는 브라우저입니다.');
+      return;
+    }
+
     const handleVisibilityChange = () => {
-      // 공유 중이고 브라우저가 다시 보이게 되었을 때
-      if (!document.hidden && countdown > 0) {
-        // 1초 후 완료 확인 다이얼로그 표시 (사용자가 정착할 시간)
-        setTimeout(() => {
-          if (countdown > 5) {
-            // 카운트다운을 5초로 단축 (빠른 완료 유도)
-            setCountdown(5);
-          }
-        }, 1000);
+      // 공유를 시도했고 브라우저가 다시 보이게 되었을 때
+      if (!document.hidden && hasShared && !shareCompleted) {
+        console.log('사용자가 공유 후 브라우저로 돌아왔습니다.');
+        // 바로 완료 처리
+        setShareCompleted(true);
+        onShareCompleted();
       }
     };
 
@@ -65,25 +58,7 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [countdown]);
-
-  // 카운트다운 시작
-  const startCountdown = () => {
-    setCountdown(15); // 15초로 연장 (앱 복귀 감지로 단축될 수 있음)
-    timerRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
-          setShareCompleted(true);
-          onShareCompleted();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-  };
+  }, [hasShared, shareCompleted, onShareCompleted]);
 
   // Web Share API (iOS Safari 인스타그램 오류 해결)
   const shareWithFile = async () => {
@@ -120,9 +95,9 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         });
       }
       
-      // 공유 시도 후 카운트다운 시작
+      // 공유 시도 표시
+      setHasShared(true);
       setIsSharing(false);
-      startCountdown();
       
     } catch (error: any) {
       setIsSharing(false);
@@ -133,11 +108,8 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
     }
   };
 
-  // 수동 완료 버튼 (배달의민족, 요기요 방식)
+  // 수동 완료 버튼 (백업용)
   const handleManualComplete = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
     setShareCompleted(true);
     onShareCompleted();
   };
@@ -154,62 +126,6 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         </p>
         <div className="w-full h-2 bg-green-200 rounded-full">
           <div className="h-2 bg-green-500 rounded-full animate-pulse"></div>
-        </div>
-      </div>
-    );
-  }
-
-  // 카운트다운 중인 경우 (스마트한 메시지 표시)
-  if (countdown > 0) {
-    return (
-      <div className="share-waiting text-center p-6 bg-blue-50 rounded-lg">
-        <div className="text-6xl mb-4">⏱️</div>
-        <h3 className="text-xl font-bold text-blue-800 mb-2">공유 대기 중...</h3>
-        <p className="text-blue-600 mb-6">
-          {countdown > 10 ? (
-            <>
-              인스타그램에서 <strong>릴스/게시물/스토리/메시지</strong> 중 하나를 선택하셨나요?
-              <br />
-              <span className="font-bold text-2xl text-blue-800">{countdown}초</span> 후 자동으로 다음 단계로 넘어갑니다
-            </>
-          ) : (
-            <>
-              공유를 완료하셨다면 아래 버튼을 눌러주세요!
-              <br />
-              <span className="font-bold text-2xl text-red-600">{countdown}초</span> 후 자동 완료됩니다
-            </>
-          )}
-        </p>
-        
-        <div className="space-y-4">
-          <button
-            onClick={handleManualComplete}
-            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold text-lg transform transition-all hover:scale-105"
-          >
-            ✅ 공유 완료했어요!
-          </button>
-          
-          <button
-            onClick={() => {
-              if (timerRef.current) {
-                clearInterval(timerRef.current);
-              }
-              setCountdown(0);
-            }}
-            className="w-full bg-gray-400 hover:bg-gray-500 text-white p-3 rounded-lg"
-          >
-            다시 공유하기
-          </button>
-        </div>
-        
-        <div className="mt-4 w-full bg-blue-200 rounded-full h-3">
-          <div 
-            className="bg-blue-500 h-3 rounded-full transition-all duration-1000"
-            style={{ 
-              width: `${((15 - countdown) / 15) * 100}%`,
-              backgroundColor: countdown <= 5 ? '#ef4444' : '#3b82f6'
-            }}
-          ></div>
         </div>
       </div>
     );
@@ -234,62 +150,24 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         />
       </div>
 
-      {/* 공유 안내 */}
-      <div className="mb-8 p-5 bg-blue-50 rounded-lg">
-        <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
-          <span>📋</span>
-          <span>공유 방법</span>
-        </h4>
-        <div className="space-y-2 text-blue-700">
-          <div className="flex items-start gap-2">
-            <span className="text-blue-500 mt-1">•</span>
-            <span>버튼을 누르면 공유 화면이 나타납니다</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="text-blue-500 mt-1">•</span>
-            <span>카카오톡, 인스타그램, 페이스북 등 원하는 앱을 선택하세요</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="text-blue-500 mt-1">•</span>
-            <span><strong>인스타그램:</strong> 릴스/게시물/스토리/메시지 중 선택</span>
-          </div>
-          <div className="flex items-start gap-2">
-            <span className="text-blue-500 mt-1">•</span>
-            <span>공유 완료 후 "공유 완료했어요!" 버튼을 눌러주세요</span>
-          </div>
-        </div>
-      </div>
-
       {/* 공유 버튼 */}
-      {(navigator as any).share ? (
+      <div className="space-y-4">
         <button
           onClick={shareWithFile}
           disabled={isSharing}
-          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 disabled:from-gray-400 disabled:to-gray-400 text-white p-6 rounded-xl font-bold text-xl flex items-center justify-center gap-4 shadow-lg transform transition-all hover:scale-105 disabled:hover:scale-100"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white p-4 rounded-lg font-bold text-lg transform transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <span className="text-4xl">📱</span>
-          <div className="text-center">
-            <div>{isSharing ? '공유 중...' : 'SNS에 공유하기'}</div>
-            <div className="text-sm opacity-90 font-normal">사진 파일 포함</div>
-          </div>
+          {isSharing ? "공유 중..." : "📤 SNS에 공유하기"}
         </button>
-      ) : (
-        <div className="text-center p-8 bg-gray-100 rounded-xl">
-          <div className="text-5xl mb-4">🚫</div>
-          <h4 className="font-bold text-gray-800 mb-3 text-lg">공유 기능 미지원</h4>
-          <p className="text-gray-600">
-            이 브라우저에서는 공유 기능을 지원하지 않습니다.<br />
-            <span className="font-semibold">모바일 브라우저</span>에서 접속해주세요.
-          </p>
-        </div>
-      )}
 
-      <div className="text-center text-gray-500 mt-6 p-4 bg-gray-50 rounded-lg">
-        <span className="text-lg">💡</span>
-        <p className="mt-2">
-          공유 완료 후 확인 버튼을 누르거나<br />
-          <span className="font-semibold text-gray-700">15초 후 자동</span>으로 쿠폰 발급 단계로 이동합니다
-        </p>
+        {hasShared && (
+          <button
+            onClick={handleManualComplete}
+            className="w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-lg font-bold text-lg"
+          >
+            ✅ 공유 완료했어요!
+          </button>
+        )}
       </div>
     </div>
   );
