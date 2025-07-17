@@ -25,9 +25,21 @@ export function SocialShare({ location, userPhotoUrl, onShareCompleted, onError 
         
         // 1초 이상 경과했다면 공유 프로세스가 완료된 것으로 간주
         if (timeSinceShare > 1000) {
-          setShareCompleted(true);
-          onShareCompleted();
-          shareAttemptRef.current = null;  // 초기화
+          // 인스타그램 모달 강제 종료를 위한 포커스 처리
+          window.focus();
+          // 약간의 지연 후 완료 처리 (모달이 완전히 닫히도록)
+          setTimeout(() => {
+            setShareCompleted(true);
+            onShareCompleted();
+            shareAttemptRef.current = null;
+            
+            // 추가: 현재 공유 다이얼로그 강제 종료 시도
+            if (document.activeElement instanceof HTMLElement) {
+              document.activeElement.blur();
+            }
+            // 추가: body 스크롤 잠금 해제
+            document.body.style.overflow = '';
+          }, 100);
         }
       }
     };
