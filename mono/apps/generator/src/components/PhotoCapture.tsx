@@ -77,20 +77,27 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       setIsSharing(true);
       shareAttemptRef.current = Date.now();
       appSwitchAttemptRef.current = false;
-      
-      // Web Share API 호출
-      const shareData = {
-        title: '이벤트 참여',
-        text: `${location} 이벤트 참여 중이에요!`,
-        url: window.location.href,
+
+      // base64 → Blob → File 변환
+      const response = await fetch(capturedPhoto!);
+      const blob = await response.blob();
+      const photoFile = new File([blob], `${location.slug}-photo.jpg`, { type: 'image/jpeg' });
+
+      const shareOptions = {
+        title: "",
+        text: `${location.name}에서 멋진 조형물과 함께 사진을 찍었어요! 🎉`,
+        files: [photoFile]
       };
 
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
+      const nav = navigator as any;
+      if (nav.canShare && nav.canShare(shareOptions)) {
+        await nav.share(shareOptions);
       } else {
-        shareAttemptRef.current = null;
-        setIsSharing(false);
-        onError('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
+        await nav.share({
+          title: "",
+          text: `${location.name}에서 멋진 조형물과 함께 사진을 찍었어요! 🎉`,
+          url: window.location.href
+        });
       }
 
     } catch (error) {
