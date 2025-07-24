@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { EnhancedCouponService } from "@repo/api";
-import { GenerateQrCode, PhotoCapture, SocialShare } from "@/components";
+import { GenerateQrCode, PhotoCapture, IntroScreen } from "@/components";
 import { BottomSheet } from "@repo/ui";
 import { useTimestamp } from "@/hooks";
 import { useParams } from "next/navigation";
@@ -26,7 +26,7 @@ export default function LocationGeneratorPage() {
   const [generatedCode, setGeneratedCode] = useState<string>("");
   
   // 🆕 새로운 플로우 상태들
-  const [currentStep, setCurrentStep] = useState<'photo' | 'share' | 'coupon'>('photo');
+  const [currentStep, setCurrentStep] = useState<'intro' | 'photo' | 'share' | 'coupon' | 'success'>('intro');
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [shareCompleted, setShareCompleted] = useState(false);
 
@@ -67,9 +67,17 @@ export default function LocationGeneratorPage() {
   }, [locationSlug]);
 
   // 사진 업로드 완료 핸들러
-  const handlePhotoUploaded = (imageUrl: string) => {
+  const handlePhotoUploaded = (imageUrl: string, isTimeout?: boolean) => {
     setUserPhotoUrl(imageUrl);
-    setCurrentStep('share');
+    
+    if (isTimeout) {
+      // 타임아웃으로 실패한 경우 자연스럽게 이전 화면으로
+      setCurrentStep('photo');
+    } else {
+      // 성공적으로 공유된 경우
+      setShareCompleted(true);
+      setCurrentStep('coupon');
+    }
   };
 
   // 공유 완료 핸들러
@@ -92,7 +100,6 @@ export default function LocationGeneratorPage() {
     if (!location || !shareCompleted) return;
 
     setIsLoading(true);
-    setShowModal(true);
 
     try {
       // 1. 장소별 코드 생성
@@ -102,6 +109,7 @@ export default function LocationGeneratorPage() {
           type: "error",
           message: result.error || "코드 생성에 실패했습니다.",
         });
+        setShowModal(true);
         setIsLoading(false);
         return;
       }
@@ -119,6 +127,7 @@ export default function LocationGeneratorPage() {
           type: "error",
           message: saveResult.error || "코드 저장에 실패했습니다.",
         });
+        setShowModal(true);
         setIsLoading(false);
         return;
       }
@@ -133,11 +142,9 @@ export default function LocationGeneratorPage() {
         });
 
         setSavedImageUrl(imageUrl);
-        setModalContent({
-          type: "success",
-          message: saveResult.message || "쿠폰이 성공적으로 발급되었습니다!",
-        });
         setIsLoading(false);
+        // 성공 시 success 페이지로 이동
+        setCurrentStep('success');
       }, 500);
     } catch (error) {
       console.error("쿠폰 발급 오류:", error);
@@ -145,6 +152,7 @@ export default function LocationGeneratorPage() {
         type: "error",
         message: "쿠폰 발급 중 오류가 발생했습니다.",
       });
+      setShowModal(true);
       setIsLoading(false);
     }
   };
@@ -315,9 +323,59 @@ export default function LocationGeneratorPage() {
   const closeModal = () => {
     setShowModal(false);
     setModalContent({ type: "", message: "" });
-    setSavedImageUrl(null);
-    setGeneratedCode("");
   };
+
+  // success 페이지 쿠폰 카드 컴포넌트
+  function CouponCardShell({
+    qrUrl,
+    description,
+    code,
+    onDownload,
+  }: {
+    qrUrl: string;
+    description: string;
+    code: string;
+    onDownload: () => void;
+  }) {
+    return (
+      <div className="relative w-[290px] h-[380px] bg-white shadow-xl mx-auto flex flex-col items-center pt-8 pb-6 px-4" style={{ borderRadius: '20px 20px 32px 32px / 16px 16px 32px 32px' }}>
+        {/* 위쪽 톱니 */}
+        <div className="absolute top-0 left-0 w-full flex justify-between z-10">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-7 h-7 bg-[#b8d8ff] rounded-full"
+              style={{ transform: 'translateY(-50%)' }}
+            />
+          ))}
+        </div>
+        {/* 내부 컨텐츠 */}
+        <div className="flex-1 w-full flex flex-col items-center justify-center">
+          {/* 제목 */}
+          <div className="text-[22px] font-bold text-[#479aff] mb-2 tracking-wider">EVENT BENEFIT</div>
+          {/* QR코드 */}
+          <div className="bg-white rounded-lg p-2 shadow mb-2">
+            <img src={qrUrl} alt="쿠폰 QR" className="w-[140px] h-[140px] object-contain" />
+          </div>
+          {/* 설명 */}
+          <div className="text-[13px] text-black text-center mb-1">{description}</div>
+          {/* 코드 */}
+          <div className="text-[12px] text-gray-500 text-center mb-2 font-mono">{code}</div>
+        </div>
+        {/* 하단 점선 */}
+        <div className="absolute left-0 bottom-[56px] w-full flex justify-center">
+          <div className="w-[85%] border-b border-dashed border-[#b8d8ff]" />
+        </div>
+        {/* 다운로드 버튼 */}
+        <button
+          onClick={onDownload}
+          className="w-full mt-4 text-[15px] text-black/80 font-medium flex items-center justify-center gap-1"
+        >
+          이미지 다운로드 <span className="text-lg">↓</span>
+        </button>
+      </div>
+    );
+  }
 
   // 로딩 중일 때
   if (isPageLoading) {
@@ -349,209 +407,229 @@ export default function LocationGeneratorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100">
-      {/* 히든 QR 코드 (이미지 생성용) */}
-      <div className="hidden">
-        <GenerateQrCode ref={qrRef} value={generatedCode || "PLACEHOLDER"} />
-      </div>
-
-      {/* 헤더 */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-md mx-auto px-6 py-4">
-          <div className="flex items-center space-x-3">
-            <span className="text-3xl">📍</span>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">
-                {location.name}
-              </h1>
-              <p className="text-sm text-gray-600">{location.description}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#DEE7EC] relative">
+      {/* 배경 그리드 */}
+      <div 
+        className="fixed inset-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(182, 215, 255, 0.3) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(182, 215, 255, 0.3) 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px'
+        }}
+      />
 
       {/* 메인 컨텐츠 */}
-      <div className="max-w-md mx-auto px-6 py-8">
-        <div className="bg-white rounded-xl shadow-lg p-8">
-          {/* 단계 표시 */}
-          <div className="flex justify-center mb-6">
-            <div className="flex items-center space-x-4">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'photo' ? 'bg-blue-500 text-white' : 
-                currentStep === 'share' || currentStep === 'coupon' ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                1
-              </div>
-              <div className="w-8 h-0.5 bg-gray-300"></div>
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'share' ? 'bg-blue-500 text-white' : 
-                currentStep === 'coupon' ? 'bg-green-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                2
-              </div>
-              <div className="w-8 h-0.5 bg-gray-300"></div>
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                currentStep === 'coupon' ? 'bg-blue-500 text-white' : 
-                'bg-gray-300 text-gray-600'
-              }`}>
-                3
-              </div>
-            </div>
-          </div>
+      <div className="relative z-10">
+        {/* 히든 QR 코드 (이미지 생성용) */}
+        <div className="hidden">
+          <GenerateQrCode ref={qrRef} value={generatedCode || "PLACEHOLDER"} />
+        </div>
 
-          {/* 단계별 컨텐츠 */}
-          {currentStep === 'photo' && (
-            <div>
-              <div className="text-center mb-6">
-                <div className="text-6xl mb-4">📸</div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  1단계: 사진 촬영
-                </h2>
-                <p className="text-gray-600">
-                  조형물과 함께 사진을 촬영해주세요
-                </p>
+        {/* 메인 컨텐츠 */}
+        <div className="h-[852px] mx-auto">
+          <div>
+            {currentStep === 'intro' && (
+              <div>
+                <IntroScreen
+                  onNext={() => setCurrentStep('photo')}
+                />
               </div>
-              <PhotoCapture
-                location={location}
-                onPhotoUploaded={handlePhotoUploaded}
-                onError={handleError}
-              />
-            </div>
-          )}
+            )}
 
-          {currentStep === 'share' && userPhotoUrl && (
-            <div>
-              <div className="text-center mb-6">
-                <div className="text-6xl mb-4">📱</div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                  2단계: SNS 공유
-                </h2>
-                <p className="text-gray-600">
-                  촬영한 사진을 SNS에 공유해주세요
-                </p>
+            {currentStep === 'photo' && (
+              <div className="h-full">
+                <PhotoCapture
+                  location={location}
+                  onPhotoUploaded={handlePhotoUploaded}
+                  onError={handleError}
+                  initialPhoto={userPhotoUrl}
+                />
               </div>
-              <SocialShare
-                location={location}
-                userPhotoUrl={userPhotoUrl}
-                onShareCompleted={handleShareCompleted}
-                onError={handleError}
-              />
-            </div>
-          )}
+            )}
 
-          {currentStep === 'coupon' && shareCompleted && (
-            <div className="text-center">
-              <div className="text-6xl mb-6">🎫</div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                3단계: 쿠폰 발급
-              </h2>
-              <p className="text-gray-600 mb-8">
-                사진 촬영과 SNS 공유가 완료되었습니다!<br />
-                이제 쿠폰을 발급받을 수 있습니다.
-              </p>
+            {currentStep === 'coupon' && shareCompleted && (
+              <div className="relative w-[auto] h-[852px] mx-auto overflow-hidden bg-[#151515]">
+                {/* 배경 그리드 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(to right, rgba(76, 81, 86, 0.3) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(76, 81, 86, 0.3) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '24px 24px'
+                  }}
+                />
 
-              <button
-                onClick={handleGetCoupon}
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold py-4 px-6 rounded-xl hover:from-emerald-600 hover:to-teal-700 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
-              >
-                {isLoading ? (
-                  <div className="flex items-center justify-center space-x-2">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                    <span>쿠폰 발급 중...</span>
+                {/* 메인 컨텐츠 */}
+                <div className="relative z-10 flex flex-col items-center justify-start h-full px-6 pt-[80px]">
+                  <h2 className="text-[28px] font-bold text-white mb-3">
+                    공유 인증 완료!
+                  </h2>
+                  <p className="text-[17px] text-[#8B95A1] mb-[40px] text-center">
+                    사진 촬영과 SNS 공유 인증이 완료되었어요<br />
+                    이제 쿠폰을 뽑아볼까요?
+                  </p>
+
+                  {/* 쿠폰 디자인 */}
+                  <div className="relative w-full max-w-[220px] mx-auto mt-[60px]">
+                    {/* 왼쪽 초록 쿠폰 */}
+                    <div className="absolute z-[2]" style={{ top: '82px', left: '-42px', transform: 'rotate(-13.54deg)' }}>
+                      {/* 상단 컨테이너 */}
+                      <div className="w-[176px] h-[191px] bg-[#77E572] rounded-[8px] overflow-hidden">
+                        {/* 톱니 모양 상단 */}
+                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
+                          {[...Array(6)].map((_, i) => (
+                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
+                          ))}
+                        </div>
+                        <div className="h-[60px] flex items-center justify-center">
+                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
+                        </div>
+                      </div>
+                      {/* 하단 컨테이너 */}
+                      <div className="w-[176px] h-[45px] bg-[#77E572] rounded-[8px] -mt-[2px]">
+                        <div 
+                          className="w-full h-[1px]" 
+                          style={{
+                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
+                            backgroundPosition: 'top',
+                            backgroundSize: '12px 1px',
+                            backgroundRepeat: 'repeat-x'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* 중앙 파란 쿠폰 */}
+                    <div className="relative z-[3]">
+                      {/* 상단 컨테이너 */}
+                      <div className="w-[220px] h-[295px] bg-[#478AFF] rounded-[8px] overflow-hidden">
+                        {/* 톱니 모양 상단 */}
+                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
+                          {[...Array(6)].map((_, i) => (
+                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
+                          ))}
+                        </div>
+                        <div className="h-[60px] flex items-center justify-center">
+                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
+                        </div>
+                      </div>
+                      {/* 하단 컨테이너 */}
+                      <div className="w-[220px] h-[69px] bg-[#478AFF] rounded-[8px] -mt-[2px]">
+                        <div 
+                          className="w-full h-[1px]" 
+                          style={{
+                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
+                            backgroundPosition: 'top',
+                            backgroundSize: '15px 1px',
+                            backgroundRepeat: 'repeat-x'
+                          }}
+                        />
+                        <div className="h-full flex items-center justify-center">
+                          <span className="text-white text-[15px]">HECHI X ASTEROIDER</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 오른쪽 분홍 쿠폰 */}
+                    <div className="absolute z-[1]" style={{ top: '82px', right: '-42px', transform: 'rotate(13.54deg)' }}>
+                      {/* 상단 컨테이너 */}
+                      <div className="w-[176px] h-[191px] bg-[#F896D8] rounded-[8px] overflow-hidden">
+                        {/* 톱니 모양 상단 */}
+                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
+                          {[...Array(6)].map((_, i) => (
+                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
+                          ))}
+                        </div>
+                        <div className="h-[60px] flex items-center justify-center">
+                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
+                        </div>
+                      </div>
+                      {/* 하단 컨테이너 */}
+                      <div className="w-[176px] h-[45px] bg-[#F896D8] rounded-[8px] -mt-[2px]">
+                        <div 
+                          className="w-full h-[1px]" 
+                          style={{
+                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
+                            backgroundPosition: 'top',
+                            backgroundSize: '12px 1px',
+                            backgroundRepeat: 'repeat-x'
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                ) : (
-                  <span className="text-lg">🎁 쿠폰 받기</span>
-                )}
-              </button>
 
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <p className="text-sm text-gray-500">
-                  💡 이 쿠폰은 {location.name}과 연결된 가게에서만 사용 가능합니다
-                </p>
+                  {/* 쿠폰 발급 버튼 */}
+                  <button
+                    onClick={handleGetCoupon}
+                    disabled={isLoading}
+                    className="w-full max-w-[353px] h-[52px] bg-[#479BFF] text-white text-[16px] font-medium rounded-[12px] mt-[40px] hover:bg-[#3B87E0] transition-all duration-200 disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                        <span>쿠폰 발급 중...</span>
+                      </div>
+                    ) : (
+                      <span>쿠폰 받기</span>
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
 
-        {/* 사용 안내 */}
-        <div className="mt-6 bg-white rounded-xl shadow-sm p-6">
-          <h3 className="font-bold text-gray-900 mb-3 flex items-center">
-            <span className="mr-2">📋</span>
-            쿠폰 발급 과정
-          </h3>
-          <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex items-start space-x-3">
-              <span className="text-blue-500 font-bold">1.</span>
-              <span>조형물과 함께 사진을 촬영하세요</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <span className="text-blue-500 font-bold">2.</span>
-              <span>촬영한 사진을 SNS에 공유하세요</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <span className="text-blue-500 font-bold">3.</span>
-              <span>공유 완료 후 쿠폰을 발급받으세요</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <span className="text-emerald-500 font-bold">4.</span>
-              <span>연결된 가게에서 쿠폰을 사용하세요</span>
-            </div>
+            {currentStep === 'success' && savedImageUrl && (
+              <div className="relative w-[auto] h-[852px] mx-auto overflow-hidden" style={{
+                background: `linear-gradient(
+                  to top,
+                  #b8d8ff 0px,
+                  #b8d8ff 92px,
+                  #479aff 556px,
+                  #479aff 100%
+                )`
+              }}>
+                {/* 배경 그리드 */}
+                <div 
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(to right, rgba(255,255,255,0.15) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.15) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '24px 24px'
+                  }}
+                />
+                {/* 메인 컨텐츠 */}
+                <div className="relative z-10 flex flex-col items-center justify-start h-full px-6 pt-[80px]">
+                  <CouponCardShell
+                    qrUrl={savedImageUrl}
+                    description={`${location.name} 방문 인증 쿠폰`}
+                    code={generatedCode}
+                    onDownload={downloadImage}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* 성공/실패 모달 */}
-      <BottomSheet isOpen={showModal} setIsOpen={closeModal}>
-        <div className="p-6">
-          {isLoading ? (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">쿠폰을 발급하고 있습니다...</p>
-              <p className="text-sm text-gray-500 mt-2">잠시만 기다려주세요</p>
-            </div>
-          ) : (
+        {/* 에러 모달 (성공 시에는 사용하지 않음) */}
+        <BottomSheet isOpen={showModal} setIsOpen={closeModal}>
+          <div className="p-6">
             <div className="text-center">
-              <div className="text-6xl mb-4">
-                {modalContent.type === "success" ? "🎉" : "❌"}
-              </div>
+              <div className="text-6xl mb-4">❌</div>
 
               <h3 className="text-xl font-bold mb-4 text-gray-900">
-                {modalContent.type === "success"
-                  ? "쿠폰 발급 완료!"
-                  : "발급 실패"}
+                발급 실패
               </h3>
 
               <p className="text-gray-600 mb-6 whitespace-pre-line">
                 {modalContent.message}
               </p>
-
-              {modalContent.type === "success" && savedImageUrl && (
-                <div className="space-y-4 mb-6">
-                  <img
-                    src={savedImageUrl}
-                    alt="쿠폰 이미지"
-                    className="w-full max-w-xs mx-auto rounded-lg shadow-md"
-                  />
-
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={downloadImage}
-                      className="flex-1 bg-emerald-500 text-white py-3 px-4 rounded-lg hover:bg-emerald-600 transition-colors"
-                    >
-                      📷 이미지 저장
-                    </button>
-                    <button
-                      onClick={copyCode}
-                      className="flex-1 bg-gray-500 text-white py-3 px-4 rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      📋 코드 복사
-                    </button>
-                  </div>
-                </div>
-              )}
 
               <button
                 onClick={closeModal}
@@ -560,9 +638,9 @@ export default function LocationGeneratorPage() {
                 확인
               </button>
             </div>
-          )}
-        </div>
-      </BottomSheet>
+          </div>
+        </BottomSheet>
+      </div>
     </div>
   );
 }

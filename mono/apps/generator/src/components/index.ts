@@ -1,3 +1,3 @@
 export * from "./GenerateQRCode";
 export { PhotoCapture } from "./PhotoCapture";
-export { SocialShare } from "./SocialShare";
+export { default as IntroScreen } from "./IntroScreen";
