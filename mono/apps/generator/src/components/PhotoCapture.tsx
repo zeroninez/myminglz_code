@@ -100,6 +100,10 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         });
       }
 
+      // === 여기서 바로 다음 단계로 이동 ===
+      onPhotoUploaded(capturedPhoto!, false);
+      setIsSharing(false);
+
     } catch (error) {
       console.error('공유 실패:', error);
       shareAttemptRef.current = null;
@@ -121,18 +125,6 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       onError('사진을 먼저 촬영해주세요.');
       return;
     }
-
-    // 인앱 브라우저 감지
-    const ua = navigator.userAgent;
-    const isInApp = /KAKAOTALK|Instagram|NAVER|Line|FBAN|FBAV|Twitter/i.test(ua);
-
-    if (isInApp) {
-      // 인앱 브라우저라면 공유 버튼 누르는 즉시 다음 단계로
-      onPhotoUploaded(capturedPhoto, false);
-      return;
-    }
-
-    // 일반 브라우저라면 기존 공유 로직
     handleShare();
   };
 
