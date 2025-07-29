@@ -146,7 +146,7 @@ export default function StorePage() {
                         <h3 className="text-[22px] font-medium text-[#479aff]">{store.name}</h3>
                         <div 
                           className="w-[18px] h-[18px] rounded-full bg-[#F6F6F6] flex items-center justify-center cursor-pointer"
-                          onClick={() => window.location.href = `/store/${locationSlug}/${store.id}`}
+                          onClick={() => window.location.href = `/${locationSlug}/store/detail`}
                         >
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#999999" strokeWidth="2">
                             <path d="M9 18l6-6-6-6" />
