@@ -77,21 +77,32 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       setIsSharing(true);
       shareAttemptRef.current = Date.now();
       appSwitchAttemptRef.current = false;
-      
-      // Web Share API 호출
-      const shareData = {
-        title: '이벤트 참여',
-        text: `${location} 이벤트 참여 중이에요!`,
-        url: window.location.href,
+
+      // base64 → Blob → File 변환
+      const response = await fetch(capturedPhoto!);
+      const blob = await response.blob();
+      const photoFile = new File([blob], `${location.slug}-photo.jpg`, { type: 'image/jpeg' });
+
+      const shareOptions = {
+        title: "",
+        text: `${location.name}에서 멋진 조형물과 함께 사진을 찍었어요! 🎉`,
+        files: [photoFile]
       };
 
-      if (navigator.canShare && navigator.canShare(shareData)) {
-        await navigator.share(shareData);
+      const nav = navigator as any;
+      if (nav.canShare && nav.canShare(shareOptions)) {
+        await nav.share(shareOptions);
       } else {
-        shareAttemptRef.current = null;
-        setIsSharing(false);
-        onError('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
+        await nav.share({
+          title: "",
+          text: `${location.name}에서 멋진 조형물과 함께 사진을 찍었어요! 🎉`,
+          url: window.location.href
+        });
       }
+
+      // === 여기서 바로 다음 단계로 이동 ===
+      onPhotoUploaded(capturedPhoto!, false);
+      setIsSharing(false);
 
     } catch (error) {
       console.error('공유 실패:', error);
@@ -265,11 +276,11 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
               onClick={() => setShowModal(true)}
             >
               {capturedPhoto ? (
-                <img
-                  src={capturedPhoto}
-                  alt="촬영된 사진"
+          <img
+            src={capturedPhoto}
+            alt="촬영된 사진"
                   className="w-full h-full object-cover rounded-[10px]"
-                />
+          />
               ) : (
                 <div className="text-center flex flex-col items-center gap-2 -translate-y-3">
                   <div className="text-[50px] mb-0 text-white">+</div>
@@ -286,39 +297,39 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         <div className="mt-6 space-y-3">
           {capturedPhoto ? (
             <div className="flex gap-3">
-              <button
-                onClick={retakePhoto}
+            <button
+              onClick={retakePhoto}
                 className="flex-1 bg-[#C7C7CE] hover:bg-[#BBBBC2] text-white h-[52px] rounded-[12px] font-medium"
-              >
-                다시 찍기
-              </button>
-              <button
+            >
+              다시 찍기
+            </button>
+            <button
                 onClick={handleShareButtonClick}
                 disabled={isSharing}
                 className="flex-1 bg-[#479BFF] hover:bg-blue-600 disabled:bg-gray-400 text-white h-[52px] rounded-[12px] font-medium"
-              >
+            >
                 {isSharing ? '공유 중...' : '공유하기'}
-              </button>
-            </div>
+            </button>
+          </div>
           ) : null}
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-          
-          <input
-            ref={galleryInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileSelect}
-            className="hidden"
-          />
-        </div>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            
+            <input
+              ref={galleryInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
       </div>
 
       {/* 사진 선택 모달 */}

@@ -7,6 +7,8 @@ import { GenerateQrCode, PhotoCapture, IntroScreen } from "@/components";
 import { BottomSheet } from "@repo/ui";
 import { useTimestamp } from "@/hooks";
 import { useParams } from "next/navigation";
+import domtoimage from 'dom-to-image-more';
+import html2canvas from 'html2canvas';
 
 const couponService = new EnhancedCouponService({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -26,7 +28,7 @@ export default function LocationGeneratorPage() {
   const [generatedCode, setGeneratedCode] = useState<string>("");
   
   // 🆕 새로운 플로우 상태들
-  const [currentStep, setCurrentStep] = useState<'intro' | 'photo' | 'share' | 'coupon' | 'success'>('intro');
+  const [currentStep, setCurrentStep] = useState<'intro' | 'photo' | 'coupon' | 'success'>('intro');
   const [userPhotoUrl, setUserPhotoUrl] = useState<string | null>(null);
   const [shareCompleted, setShareCompleted] = useState(false);
 
@@ -78,12 +80,6 @@ export default function LocationGeneratorPage() {
       setShareCompleted(true);
       setCurrentStep('coupon');
     }
-  };
-
-  // 공유 완료 핸들러
-  const handleShareCompleted = () => {
-    setShareCompleted(true);
-    setCurrentStep('coupon');
   };
 
   // 에러 핸들러
@@ -175,147 +171,39 @@ export default function LocationGeneratorPage() {
         return;
       }
 
-      const { brandName, brandColor, logoText, locationDesc } = options;
-
-      const enhancedCanvas = document.createElement("canvas");
-      const ctx = enhancedCanvas.getContext("2d");
-      if (!ctx) {
-        resolve("");
-        return;
-      }
-
-      const padding = 80;
-      const headerHeight = 140;
-      const footerHeight = 100;
-      const qrSize = Math.max(originalCanvas.width, originalCanvas.height);
-
-      enhancedCanvas.width = qrSize + padding * 2;
-      enhancedCanvas.height =
-        qrSize + headerHeight + footerHeight + padding * 2;
-
-      // 배경 그라데이션
-      const bgGradient = ctx.createLinearGradient(
-        0,
-        0,
-        0,
-        enhancedCanvas.height
-      );
-      bgGradient.addColorStop(0, "#fefefe");
-      bgGradient.addColorStop(0.5, "#f8fafc");
-      bgGradient.addColorStop(1, "#f1f5f9");
-      ctx.fillStyle = bgGradient;
-      ctx.fillRect(0, 0, enhancedCanvas.width, enhancedCanvas.height);
-
-      // 헤더 배경
-      const headerGradient = ctx.createLinearGradient(0, 0, 0, headerHeight);
-      headerGradient.addColorStop(0, brandColor);
-      headerGradient.addColorStop(1, brandColor + "dd");
-      ctx.fillStyle = headerGradient;
-      ctx.fillRect(0, 0, enhancedCanvas.width, headerHeight);
-
-      // 로고/아이콘
-      ctx.font = "48px Arial, sans-serif";
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText(logoText, enhancedCanvas.width / 2, 50);
-
-      // 장소명
-      ctx.font = "bold 24px Arial, sans-serif";
-      ctx.fillText(brandName, enhancedCanvas.width / 2, 85);
-
-      // 장소 설명
-      if (locationDesc) {
-        ctx.font = "14px Arial, sans-serif";
-        ctx.fillStyle = "#ffffff99";
-        ctx.fillText(locationDesc, enhancedCanvas.width / 2, 105);
-      }
-
-      // 서브타이틀
-      ctx.font = "16px Arial, sans-serif";
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText("방문 인증 쿠폰", enhancedCanvas.width / 2, 125);
-
-      // QR 코드 영역에 그림자 효과
-      const qrX = padding;
-      const qrY = headerHeight + padding;
-
-      // 그림자
-      ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
-      ctx.shadowBlur = 20;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 8;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40);
-
-      // 그림자 리셋
-      ctx.shadowColor = "transparent";
-      ctx.shadowBlur = 0;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
-
-      // QR 코드 그리기
-      ctx.drawImage(originalCanvas, qrX, qrY, qrSize, qrSize);
-
-      // 하단 정보
-      const footerY = headerHeight + qrSize + padding * 2;
-
-      // 코드 표시
-      ctx.font = "bold 20px Arial, sans-serif";
-      ctx.fillStyle = "#374151";
-      ctx.textAlign = "center";
-      ctx.fillText(
-        `쿠폰 코드: ${code}`,
-        enhancedCanvas.width / 2,
-        footerY + 30
-      );
-
-      // 사용 안내
-      ctx.font = "14px Arial, sans-serif";
-      ctx.fillStyle = "#6b7280";
-      ctx.fillText(
-        "연결된 가게에서 제시하세요",
-        enhancedCanvas.width / 2,
-        footerY + 55
-      );
-
-      // 타임스탬프
-      const now = new Date();
-      const timeStr = now.toLocaleString("ko-KR");
-      ctx.font = "12px Arial, sans-serif";
-      ctx.fillStyle = "#9ca3af";
-      ctx.fillText(
-        `발급일시: ${timeStr}`,
-        enhancedCanvas.width / 2,
-        footerY + 75
-      );
-
-      resolve(enhancedCanvas.toDataURL("image/png"));
+      // QR 코드만 반환
+      resolve(originalCanvas.toDataURL("image/png"));
     });
   };
 
   // 이미지 다운로드
-  const downloadImage = async () => {
-    if (!savedImageUrl) return;
+  const handleDownload = async () => {
+    const element = document.querySelector('.coupon-container') as HTMLElement;
+    if (!element) return;
 
     try {
-      const link = document.createElement("a");
+      const canvas = await html2canvas(element, {
+        scale: 2, // 고해상도
+        useCORS: true, // 외부 이미지 허용
+        allowTaint: true,
+        backgroundColor: null, // 투명 배경
+        logging: false,
+        width: 500, // 더 넓은 캡처 영역
+        height: 500,
+        imageTimeout: 0,
+        x: -100, // 좌측으로 50px 이동하여 캡처
+      });
+
+      // 이미지 다운로드
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
       link.download = generateFilename(
-        `${location?.name || "coupon"}-${generatedCode}`
+        `${location?.name || "coupon"}-${code}`
       );
-      link.href = savedImageUrl;
+      link.href = dataUrl;
       link.click();
     } catch (error) {
-      console.error("이미지 다운로드 오류:", error);
-    }
-  };
-
-  // 코드 복사
-  const copyCode = async () => {
-    if (!generatedCode) return;
-
-    const copied = await couponService.copyToClipboard(generatedCode);
-    if (copied) {
-      alert("쿠폰 코드가 복사되었습니다!");
+      console.error('이미지 다운로드 오류:', error);
     }
   };
 
@@ -323,6 +211,17 @@ export default function LocationGeneratorPage() {
   const closeModal = () => {
     setShowModal(false);
     setModalContent({ type: "", message: "" });
+  };
+
+  // 코드 복사 함수
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("쿠폰 코드가 복사되었습니다!");
+    } catch (err) {
+      console.error("복사 실패:", err);
+      alert("복사에 실패했습니다. 직접 코드를 복사해주세요.");
+    }
   };
 
   // success 페이지 쿠폰 카드 컴포넌트
@@ -338,41 +237,82 @@ export default function LocationGeneratorPage() {
     onDownload: () => void;
   }) {
     return (
-      <div className="relative w-[290px] h-[380px] bg-white shadow-xl mx-auto flex flex-col items-center pt-8 pb-6 px-4" style={{ borderRadius: '20px 20px 32px 32px / 16px 16px 32px 32px' }}>
-        {/* 위쪽 톱니 */}
-        <div className="absolute top-0 left-0 w-full flex justify-between z-10">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-7 h-7 bg-[#b8d8ff] rounded-full"
-              style={{ transform: 'translateY(-50%)' }}
-            />
-          ))}
-        </div>
-        {/* 내부 컨텐츠 */}
-        <div className="flex-1 w-full flex flex-col items-center justify-center">
-          {/* 제목 */}
-          <div className="text-[22px] font-bold text-[#479aff] mb-2 tracking-wider">EVENT BENEFIT</div>
-          {/* QR코드 */}
-          <div className="bg-white rounded-lg p-2 shadow mb-2">
-            <img src={qrUrl} alt="쿠폰 QR" className="w-[140px] h-[140px] object-contain" />
+      <div className="relative w-[500px] h-[500px] mx-auto">
+        {/* 쿠폰 컨테이너 */}
+        <div className="coupon-container absolute left-1/2 top-[33%] -translate-x-1/2 -translate-y-1/2">
+          {/* 캐릭터들 */}
+          <img 
+            src="/coupon/5e3f834fb0503d119dca1bf08d2870d26b68b76b.png"
+            alt="green character"
+            className="absolute -left-[44px] top-[195px] w-[149px] h-[150px] scale-x-[-1] z-10"
+          />
+          <img 
+            src="/coupon/8dacf78389c9026b25d30382761645b95da348f2.png"
+            alt="pink character"
+            className="absolute -left-[77px] top-[95px] -z-10"
+          />
+          <img 
+            src="/coupon/afb757e706c3536fc2c089807202b5a557471ac6.png"
+            alt="blue character"
+            className="absolute -right-25 top-[155px] w-[192px] h-[192px] z-10"
+          />
+          <img 
+            src="/coupon/482b5f6bf6cde5ddc8423735dd80373845304d37.png"
+            alt="orange character"
+            className="absolute -right-10 top-4 w-[57px] h-[57px] z-10"
+          />
+
+          {/* 쿠폰 내용 */}
+          <div className="relative w-[255px] h-[340px]">
+            {/* SVG 쿠폰 테두리 */}
+            <svg
+              width="255"
+              height="340"
+              viewBox="0 0 255 400"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="absolute top-0 left-0 w-full h-full"
+            >
+              <g transform="translate(0, 50)">
+                <path d="M18.3477 0.464349C18.3477 5.46882 22.4962 9.52575 27.6133 9.52587C32.7305 9.52587 36.8789 5.4689 36.8789 0.464349C36.8789 0.393498 36.8757 0.322897 36.874 0.252435L58.2656 0.252435C58.264 0.3229 58.2598 0.393495 58.2598 0.464349C58.2598 5.46876 62.4083 9.52565 67.5254 9.52587C72.6426 9.52587 76.791 5.4689 76.791 0.464349C76.791 0.393496 76.7878 0.322899 76.7861 0.252435L98.1797 0.252435C98.178 0.322578 98.1738 0.392844 98.1738 0.463372C98.1738 5.46788 102.322 9.52483 107.439 9.5249C112.557 9.5249 116.705 5.46792 116.705 0.463372C116.705 0.392849 116.702 0.322573 116.7 0.252435L138.092 0.252435C138.09 0.322799 138.087 0.393597 138.087 0.464349C138.087 5.46876 142.235 9.52587 147.353 9.52587C152.47 9.52579 156.618 5.46871 156.618 0.464349C156.618 0.393592 156.614 0.322804 156.612 0.252435L178.009 0.252435C178.007 0.322898 178.004 0.393496 178.004 0.464349C178.004 5.4689 182.152 9.52587 187.27 9.52587C192.387 9.52566 196.535 5.46877 196.535 0.464349C196.535 0.393495 196.531 0.3229 196.529 0.252435L217.92 0.252435C217.918 0.322901 217.914 0.393494 217.914 0.464349C217.914 5.46882 222.063 9.52575 227.18 9.52587C232.297 9.52587 236.445 5.4689 236.445 0.464349C236.445 0.393498 236.442 0.322897 236.44 0.252435L246.75 0.252435C251.16 0.252475 254.735 3.82781 254.735 8.23779V273.852C254.735 278.262 251.16 281.837 246.75 281.837H7.99023C3.58009 281.837 0.00489546 278.262 0.00488281 273.852L0.00488281 8.23779C0.00506236 3.82779 3.58019 0.252435 7.99023 0.252435L18.3535 0.252435C18.3519 0.322901 18.3477 0.393494 18.3477 0.464349Z" fill="white"/>
+                <rect y="281.84" width="254.73" height="59.0791" rx="7.98528" fill="white"/>
+                <path d="M13.0439 281.84L241.688 281.84" stroke="#469AFF" strokeWidth="1.59706" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="5.59 6.39"/>
+              </g>
+            </svg>
+
+            {/* 내부 컨텐츠 */}
+            <div className="relative z-10 w-full h-full flex flex-col items-center pt-16">
+              <div className="text-[22px] font-bold mb-8" style={{ color: '#479aff' }}>EVENT BENEFIT</div>
+              <div className="mb-6 -mt-6">
+                <img src={qrUrl} alt="QR Code" className="w-[120px] h-[120px]" />
+              </div>
+              <div className="text-[10px] text-black text-center -mt-4">
+                {description}
+              </div>
+              <button 
+                onClick={() => copyToClipboard(code)}
+                className="text-[9px] font-mono mb-8 flex items-center gap-1"
+                style={{ color: '#666666', transition: 'color 0.2s' }}
+              >
+                {code}
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+              <div className="absolute bottom-[20px] left-0 right-0 flex justify-center items-center w-full">
+                <button onClick={onDownload} className="flex items-center gap-2">
+                  <span className="text-[13px]" style={{ color: 'rgba(0, 0, 0, 0.8)' }}>이미지 다운로드</span>
+                  <img 
+                    src="/Frame 44.svg"
+                    alt="download"
+                    className="w-4 h-4 -ml-1"
+                  />
+                </button>
+              </div>
+            </div>
           </div>
-          {/* 설명 */}
-          <div className="text-[13px] text-black text-center mb-1">{description}</div>
-          {/* 코드 */}
-          <div className="text-[12px] text-gray-500 text-center mb-2 font-mono">{code}</div>
         </div>
-        {/* 하단 점선 */}
-        <div className="absolute left-0 bottom-[56px] w-full flex justify-center">
-          <div className="w-[85%] border-b border-dashed border-[#b8d8ff]" />
-        </div>
-        {/* 다운로드 버튼 */}
-        <button
-          onClick={onDownload}
-          className="w-full mt-4 text-[15px] text-black/80 font-medium flex items-center justify-center gap-1"
-        >
-          이미지 다운로드 <span className="text-lg">↓</span>
-        </button>
       </div>
     );
   }
@@ -407,7 +347,7 @@ export default function LocationGeneratorPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#DEE7EC] relative">
+    <div className="min-h-screen" style={{ backgroundColor: '#DEE7EC' }}>
       {/* 배경 그리드 */}
       <div 
         className="fixed inset-0"
@@ -474,93 +414,14 @@ export default function LocationGeneratorPage() {
                   </p>
 
                   {/* 쿠폰 디자인 */}
-                  <div className="relative w-full max-w-[220px] mx-auto mt-[60px]">
-                    {/* 왼쪽 초록 쿠폰 */}
-                    <div className="absolute z-[2]" style={{ top: '82px', left: '-42px', transform: 'rotate(-13.54deg)' }}>
-                      {/* 상단 컨테이너 */}
-                      <div className="w-[176px] h-[191px] bg-[#77E572] rounded-[8px] overflow-hidden">
-                        {/* 톱니 모양 상단 */}
-                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
-                          {[...Array(6)].map((_, i) => (
-                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
-                          ))}
-                        </div>
-                        <div className="h-[60px] flex items-center justify-center">
-                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
-                        </div>
-                      </div>
-                      {/* 하단 컨테이너 */}
-                      <div className="w-[176px] h-[45px] bg-[#77E572] rounded-[8px] -mt-[2px]">
-                        <div 
-                          className="w-full h-[1px]" 
-                          style={{
-                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
-                            backgroundPosition: 'top',
-                            backgroundSize: '12px 1px',
-                            backgroundRepeat: 'repeat-x'
-                          }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* 중앙 파란 쿠폰 */}
-                    <div className="relative z-[3]">
-                      {/* 상단 컨테이너 */}
-                      <div className="w-[220px] h-[295px] bg-[#478AFF] rounded-[8px] overflow-hidden">
-                        {/* 톱니 모양 상단 */}
-                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
-                          {[...Array(6)].map((_, i) => (
-                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
-                          ))}
-                        </div>
-                        <div className="h-[60px] flex items-center justify-center">
-                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
-                        </div>
-                      </div>
-                      {/* 하단 컨테이너 */}
-                      <div className="w-[220px] h-[69px] bg-[#478AFF] rounded-[8px] -mt-[2px]">
-                        <div 
-                          className="w-full h-[1px]" 
-                          style={{
-                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
-                            backgroundPosition: 'top',
-                            backgroundSize: '15px 1px',
-                            backgroundRepeat: 'repeat-x'
-                          }}
-                        />
-                        <div className="h-full flex items-center justify-center">
-                          <span className="text-white text-[15px]">HECHI X ASTEROIDER</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 오른쪽 분홍 쿠폰 */}
-                    <div className="absolute z-[1]" style={{ top: '82px', right: '-42px', transform: 'rotate(13.54deg)' }}>
-                      {/* 상단 컨테이너 */}
-                      <div className="w-[176px] h-[191px] bg-[#F896D8] rounded-[8px] overflow-hidden">
-                        {/* 톱니 모양 상단 */}
-                        <div className="absolute top-0 left-0 right-0 h-[20px] flex justify-evenly">
-                          {[...Array(6)].map((_, i) => (
-                            <div key={i} className="w-[20px] h-[20px] bg-[#151515] rounded-full -mt-[10px]" />
-                          ))}
-                        </div>
-                        <div className="h-[60px] flex items-center justify-center">
-                          <span className="text-white text-[22px] mt-[10px]">COUPON</span>
-                        </div>
-                      </div>
-                      {/* 하단 컨테이너 */}
-                      <div className="w-[176px] h-[45px] bg-[#F896D8] rounded-[8px] -mt-[2px]">
-                        <div 
-                          className="w-full h-[1px]" 
-                          style={{
-                            backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.3) 33%, rgba(255, 255, 255, 0) 0%)',
-                            backgroundPosition: 'top',
-                            backgroundSize: '12px 1px',
-                            backgroundRepeat: 'repeat-x'
-                          }}
-                        />
-                      </div>
-                    </div>
+                  <div className="relative w-full mx-auto mt-[60px]">
+                    {/* 쿠폰 이미지 */}
+                    <img
+                      src="/coupon/verified.png"
+                      alt="쿠폰 이미지"
+                      className="object-contain mx-auto"
+                      style={{ width: '363px', height: '364px' }}
+                    />
                   </div>
 
                   {/* 쿠폰 발급 버튼 */}
@@ -605,12 +466,30 @@ export default function LocationGeneratorPage() {
                 />
                 {/* 메인 컨텐츠 */}
                 <div className="relative z-10 flex flex-col items-center justify-start h-full px-6 pt-[80px]">
+                  <h2 className="text-[28px] font-bold text-white mb-3">
+                    쿠폰 발급 완료!
+                  </h2>
+                  <p className="text-[17px] text-white mb-[40px] text-center">
+                    강남 쇼핑몰 방문 인증이 완료되었어요<br />
+                    쿠폰을 다운받아 다양한 혜택을 받아보세요!
+                  </p>
+
                   <CouponCardShell
                     qrUrl={savedImageUrl}
                     description={`${location.name} 방문 인증 쿠폰`}
                     code={generatedCode}
-                    onDownload={downloadImage}
+                    onDownload={handleDownload}
                   />
+
+                  {/* 혜택 상점 보기 버튼 추가 */}
+                  <div className="w-[393px] px-[18px] mt-[-80px] relative z-50">
+                    <button
+                      onClick={() => window.location.href = `/${locationSlug}/store`}
+                      className="w-full h-[52px] bg-black text-white rounded-[14px] text-[17px] font-medium hover:bg-gray-900 transition-colors"
+                    >
+                      혜택 상점 보기
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -644,3 +523,4 @@ export default function LocationGeneratorPage() {
     </div>
   );
 }
+

@@ -53,18 +53,24 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           {/* 메인 카드 */}
           <div className="relative w-[255px] h-[355px] bg-white rounded-[12px] p-3 flex flex-col z-[2]">
             {/* 사진 영역 */}
-            <div className="w-[235px] h-[280px] bg-black rounded-[10px] flex items-center justify-center">
-              <span className="text-white text-[15px]">해치 사진</span>
+            <div className="w-[235px] h-[280px] bg-black rounded-[10px] flex items-center justify-center overflow-hidden">
+              <img 
+                src="/onbording/withHechi.png"
+                alt="해치와 함께"
+                className="w-full h-full object-cover"
+              />
             </div>
 
             {/* Hechi 뱃지 */}
-            <div className="absolute top-4 right-4 bg-white rounded-full py-1.5 px-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center gap-1.5">
-              <img 
-                src="/hechi-icon.svg" 
-                className="w-5 h-5" 
-                alt="Hechi"
-              />
-              <span className="text-[#479BFF] text-[13px] font-bold">Hechi</span>
+            <div className="absolute top-[31px] right-[-25px] bg-white rounded-[100px] w-[87px] h-[31px] pl-1 pr-3 shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex items-center">
+              <div className="w-[27px] h-[27px] rounded-full overflow-hidden">
+                <img 
+                  src="/onbording/HechiLogo.png" 
+                  className="w-full h-full object-cover" 
+                  alt="Hechi"
+                />
+              </div>
+              <span className="text-[#479BFF] text-[15px] font-bold ml-1">Hechi</span>
             </div>
 
             {/* 하단 텍스트 */}
