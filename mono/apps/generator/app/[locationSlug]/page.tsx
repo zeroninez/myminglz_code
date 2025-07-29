@@ -7,7 +7,6 @@ import { GenerateQrCode, PhotoCapture, IntroScreen } from "@/components";
 import { BottomSheet } from "@repo/ui";
 import { useTimestamp } from "@/hooks";
 import { useParams } from "next/navigation";
-import domtoimage from 'dom-to-image-more';
 import html2canvas from 'html2canvas';
 
 const couponService = new EnhancedCouponService({
@@ -177,24 +176,23 @@ export default function LocationGeneratorPage() {
   };
 
   // 이미지 다운로드
-  const handleDownload = async () => {
+  const handleDownload = async (code: string) => {
     const element = document.querySelector('.coupon-container') as HTMLElement;
     if (!element) return;
 
     try {
       const canvas = await html2canvas(element, {
-        scale: 2, // 고해상도
-        useCORS: true, // 외부 이미지 허용
+        scale: 2,
+        useCORS: true,
         allowTaint: true,
-        backgroundColor: null, // 투명 배경
+        backgroundColor: null,
         logging: false,
-        width: 500, // 더 넓은 캡처 영역
+        width: 500,
         height: 500,
         imageTimeout: 0,
-        x: -100, // 좌측으로 50px 이동하여 캡처
+        x: -100,
       });
 
-      // 이미지 다운로드
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = generateFilename(
@@ -478,7 +476,7 @@ export default function LocationGeneratorPage() {
                     qrUrl={savedImageUrl}
                     description={`${location.name} 방문 인증 쿠폰`}
                     code={generatedCode}
-                    onDownload={handleDownload}
+                    onDownload={() => handleDownload(generatedCode)}
                   />
 
                   {/* 혜택 상점 보기 버튼 추가 */}

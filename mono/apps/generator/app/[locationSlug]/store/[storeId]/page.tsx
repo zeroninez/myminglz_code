@@ -1,6 +1,8 @@
 import React from 'react';
 import { notionClient } from '@/lib/notion';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
+// TODO: 실제 데이터베이스 설정 후 타입 수정 필요
 interface MenuItem {
   name: string;
   price: number;
@@ -14,14 +16,16 @@ interface StoreDetail {
   address: string;
   operatingHours: string;
   phone: string;
-  menu: MenuItem[];
+  menu: any[]; // TODO: MenuItem[] 타입으로 수정 필요
   imageUrl: string;
 }
 
 interface PageProps {
   params: {
+    locationSlug: string;
     storeId: string;
   };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 async function fetchStoreDetail(storeId: string): Promise<StoreDetail | null> {
@@ -38,13 +42,16 @@ async function fetchStoreDetail(storeId: string): Promise<StoreDetail | null> {
 
     if (!response.results.length) return null;
 
-    const page = response.results[0];
-    const properties = page.properties as any;
+    // @ts-ignore: Notion DB 설정 전 임시로 any 타입 사용
+    const page: any = response.results[0];
+    // @ts-ignore: Notion DB 설정 전 임시로 any 타입 사용
+    const properties: any = page.properties;
 
+    // TODO: Notion DB 설정 후 타입 안전성 개선 필요
     return {
-      name: properties.name.title[0]?.plain_text || '',
-      address: properties.address?.rich_text[0]?.plain_text || '',
-      operatingHours: properties.operatingHours?.rich_text[0]?.plain_text || '',
+      name: properties.name?.title?.[0]?.plain_text || '',
+      address: properties.address?.rich_text?.[0]?.plain_text || '',
+      operatingHours: properties.operatingHours?.rich_text?.[0]?.plain_text || '',
       phone: properties.phone?.phone_number || '',
       menu: properties.menu?.relation || [],
       imageUrl: properties.imageUrl?.url || ''
@@ -55,7 +62,7 @@ async function fetchStoreDetail(storeId: string): Promise<StoreDetail | null> {
   }
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const storeDetail = await fetchStoreDetail(params.storeId);
 
   if (!storeDetail) {
