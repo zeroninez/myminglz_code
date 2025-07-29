@@ -20,14 +20,6 @@ interface StoreDetail {
   imageUrl: string;
 }
 
-interface PageProps {
-  params: {
-    locationSlug: string;
-    storeId: string;
-  };
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
 async function fetchStoreDetail(storeId: string): Promise<StoreDetail | null> {
   try {
     const response = await notionClient.databases.query({
@@ -62,7 +54,11 @@ async function fetchStoreDetail(storeId: string): Promise<StoreDetail | null> {
   }
 }
 
-export default async function Page({ params, searchParams }: PageProps) {
+export default async function Page({
+  params,
+}: {
+  params: { locationSlug: string; storeId: string };
+}) {
   const storeDetail = await fetchStoreDetail(params.storeId);
 
   if (!storeDetail) {
