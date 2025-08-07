@@ -45,27 +45,8 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
     if (isSharing) {
       document.addEventListener('visibilitychange', handleVisibilityChange);
 
-      // n초 동안 프로그레스바 채우기
-      const startTime = Date.now();
-      const progressInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const newProgress = (elapsed / 15000) * 100;
-        
-        if (newProgress >= 100 && !isSuccess) {
-          clearInterval(progressInterval);
-          // 타임아웃으로 실패 처리
-          onPhotoUploaded(capturedPhoto!, true);
-          shareAttemptRef.current = null;
-          appSwitchAttemptRef.current = false;
-          setIsSharing(false);
-        } else {
-          setProgress(Math.min(newProgress, 100));
-        }
-      }, 100);
-
       return () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
-        clearInterval(progressInterval);
       };
     }
   }, [isSharing, onPhotoUploaded, capturedPhoto, isSuccess]);
@@ -155,9 +136,6 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
   };
 
   if (isSharing) {
-    const circumference = 2 * Math.PI * 57;
-    const offset = circumference - (progress / 100) * circumference;
-
     return (
       <div className="relative w-[393px] h-[852px] mx-auto overflow-hidden bg-[#E8EFF3]">
         {/* 배경 패턴 */}
@@ -193,7 +171,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
               잠시만 기다려 주세요!
             </p>
             <div className="relative w-[120px] h-[120px] mx-auto">
-              {/* SVG 로딩 애니메이션 */}
+              {/* 고정된 로딩 애니메이션 */}
               <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 120 120">
                 <circle
                   cx="60"
@@ -202,9 +180,12 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
                   stroke="#479BFF"
                   strokeWidth="6"
                   fill="none"
-                  strokeDasharray={circumference}
-                  strokeDashoffset={offset}
-                  style={{ transition: isSuccess ? 'stroke-dashoffset 0.5s ease-out' : 'stroke-dashoffset 0.1s linear' }}
+                  strokeDasharray="358.14"
+                  strokeDashoffset="0"
+                  style={{ 
+                    animation: 'spin 2s linear infinite',
+                    transformOrigin: 'center'
+                  }}
                 />
               </svg>
               {/* 임시 더미 이미지 (원형으로 잘린 검은색 배경) */}
@@ -214,6 +195,13 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
             </div>
           </div>
         </div>
+        
+        <style jsx>{`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }

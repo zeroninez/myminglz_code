@@ -68,17 +68,10 @@ export default function LocationGeneratorPage() {
   }, [locationSlug]);
 
   // 사진 업로드 완료 핸들러
-  const handlePhotoUploaded = (imageUrl: string, isTimeout?: boolean) => {
+  const handlePhotoUploaded = (imageUrl: string) => {
     setUserPhotoUrl(imageUrl);
-    
-    if (isTimeout) {
-      // 타임아웃으로 실패한 경우 자연스럽게 이전 화면으로
-      setCurrentStep('photo');
-    } else {
-      // 성공적으로 공유된 경우
-      setShareCompleted(true);
-      setCurrentStep('coupon');
-    }
+    setShareCompleted(true);
+    setCurrentStep('coupon');
   };
 
   // 에러 핸들러
