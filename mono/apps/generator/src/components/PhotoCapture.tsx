@@ -13,7 +13,6 @@ export interface PhotoCaptureProps {
 
 export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto = null }: PhotoCaptureProps) {
   const [capturedPhoto, setCapturedPhoto] = useState<string | null>(initialPhoto);
-  const [showModal, setShowModal] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -112,12 +111,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
     }
   };
 
-  // 모달 닫기 핸들러
-  const handleModalClose = () => {
-    setShowModal(false);
-    setIsSharing(false);
-    shareAttemptRef.current = null;
-  };
+
 
   // 공유하기 버튼 클릭 핸들러
   const handleShareButtonClick = () => {
@@ -273,7 +267,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
           <div className="relative p-4">
             <div 
               className="aspect-[335/448] w-full bg-[#A6B1BF]/40 rounded-[12px] border-2 border-dashed border-[#E4EEFF] flex flex-col items-center justify-center cursor-pointer"
-              onClick={() => setShowModal(true)}
+              onClick={() => galleryInputRef.current?.click()}
             >
               {capturedPhoto ? (
           <img
@@ -332,43 +326,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
           </div>
       </div>
 
-      {/* 사진 선택 모달 */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-end justify-center z-50 pb-4">
-          <div className="bg-white w-full max-w-[393px] rounded-[7px] p-6 mx-4 text-black">
-            <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-5" />
-            <h3 className="text-[22px] mb-8">사진 올리기</h3>
-            <div className="space-y-6">
-              <button
-                onClick={() => {
-                  fileInputRef.current?.click();
-                  handleModalClose();
-                }}
-                className="w-full flex items-center text-left text-[17px]"
-              >
-                <img src="/camera-01.svg" alt="카메라" className="mr-4 w-6 h-6" />
-                카메라로 촬영하기
-              </button>
-              <button
-                onClick={() => {
-                  galleryInputRef.current?.click();
-                  handleModalClose();
-                }}
-                className="w-full flex items-center text-left text-[17px]"
-              >
-                <img src="/image-03.svg" alt="갤러리" className="mr-4 w-6 h-6" />
-                갤러리에서 선택하기
-              </button>
-            </div>
-          </div>
 
-          {/* 닫기 버튼 영역 - 배경 클릭으로 닫기 */}
-          <div 
-            className="absolute inset-0 -z-10" 
-            onClick={handleModalClose}
-          />
-        </div>
-      )}
     </div>
   );
 } 
