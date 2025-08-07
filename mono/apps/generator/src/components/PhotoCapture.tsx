@@ -32,13 +32,11 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         // 앱에서 돌아왔을 때 성공으로 처리
         setIsSuccess(true);
         setProgress(100);
-        // 1초 후 다음 단계로
-        setTimeout(() => {
-          onPhotoUploaded(capturedPhoto!, false);
-          shareAttemptRef.current = null;
-          appSwitchAttemptRef.current = false;
-          setIsSharing(false);
-        }, 1000);
+        // 즉시 공유 모달 닫고 다음 단계로
+        onPhotoUploaded(capturedPhoto!, false);
+        shareAttemptRef.current = null;
+        appSwitchAttemptRef.current = false;
+        setIsSharing(false);
       }
     };
 
