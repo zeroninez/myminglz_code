@@ -67,6 +67,28 @@ export default function LocationGeneratorPage() {
     }
   }, [locationSlug]);
 
+  // sessionStorage로 상태 복원 (앱 전환 감지 후 페이지 새로고침 시)
+  useEffect(() => {
+    const pendingStep = sessionStorage.getItem('pendingStep');
+    const pendingPhoto = sessionStorage.getItem('pendingPhoto');
+    
+    if (pendingStep === 'success' && pendingPhoto) {
+      // 바로 쿠폰 발급 완료 페이지로 이동
+      setUserPhotoUrl(pendingPhoto);
+      setShareCompleted(true);
+      // sessionStorage 정리
+      sessionStorage.removeItem('pendingStep');
+      sessionStorage.removeItem('pendingPhoto');
+    }
+  }, []);
+
+  // shareCompleted가 true가 되면 자동으로 쿠폰 발급
+  useEffect(() => {
+    if (shareCompleted && userPhotoUrl) {
+      handleGetCoupon();
+    }
+  }, [shareCompleted, userPhotoUrl]);
+
   // 사진 업로드 완료 핸들러
   const handlePhotoUploaded = (imageUrl: string) => {
     setUserPhotoUrl(imageUrl);
@@ -380,59 +402,7 @@ export default function LocationGeneratorPage() {
               </div>
             )}
 
-            {currentStep === 'coupon' && shareCompleted && (
-              <div className="relative w-[auto] min-h-screen mx-auto overflow-hidden bg-[#151515]">
-                {/* 배경 그리드 */}
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(to right, rgba(76, 81, 86, 0.3) 1px, transparent 1px),
-                      linear-gradient(to bottom, rgba(76, 81, 86, 0.3) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '24px 24px'
-                  }}
-                />
 
-                {/* 메인 컨텐츠 */}
-                <div className="relative z-10 flex flex-col items-center justify-start h-full px-6 pt-[80px]">
-                  <h2 className="text-[28px] font-bold text-white mb-3">
-                    공유 인증 완료!
-                  </h2>
-                  <p className="text-[17px] text-[#8B95A1] mb-[40px] text-center">
-                    사진 촬영과 SNS 공유 인증이 완료되었어요<br />
-                    이제 쿠폰을 뽑아볼까요?
-                  </p>
-
-                  {/* 쿠폰 디자인 */}
-                  <div className="relative w-full mx-auto mt-[60px]">
-                    {/* 쿠폰 이미지 */}
-                    <img
-                      src="/coupon/verified.png"
-                      alt="쿠폰 이미지"
-                      className="object-contain mx-auto"
-                      style={{ width: '363px', height: '364px' }}
-                    />
-                  </div>
-
-                  {/* 쿠폰 발급 버튼 */}
-                  <button
-                    onClick={handleGetCoupon}
-                    disabled={isLoading}
-                    className="w-full max-w-[353px] h-[52px] bg-[#479BFF] text-white text-[16px] font-medium rounded-[12px] mt-[40px] hover:bg-[#3B87E0] transition-all duration-200 disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center justify-center space-x-2">
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        <span>쿠폰 발급 중...</span>
-                      </div>
-                    ) : (
-                      <span>쿠폰 받기</span>
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
 
             {currentStep === 'success' && savedImageUrl && (
               <div className="relative w-[auto] min-h-screen mx-auto overflow-hidden" style={{

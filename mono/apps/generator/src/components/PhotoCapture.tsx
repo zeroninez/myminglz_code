@@ -32,9 +32,9 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         // 앱에서 돌아왔을 때 성공으로 처리
         setIsSuccess(true);
         setProgress(100);
-        // 페이지 새로고침으로 Web Share API 모달 강제 닫기
+        // 바로 쿠폰 발급 페이지로 이동 (공유 인증 완료 페이지 건너뛰기)
         sessionStorage.setItem('pendingPhoto', capturedPhoto!);
-        sessionStorage.setItem('pendingStep', 'coupon');
+        sessionStorage.setItem('pendingStep', 'success');
         window.location.reload();
       }
     };
