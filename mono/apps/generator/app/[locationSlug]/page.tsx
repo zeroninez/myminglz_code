@@ -272,6 +272,7 @@ export default function LocationGeneratorPage() {
             src="/coupon/이미지 갤러리 저장 (2배수) (1).svg"
             alt="쿠폰 이미지"
             className="w-[393px] h-[471px] object-contain"
+            style={{ transform: 'translate(-4px, -8px)' }}
           />
           
           {/* QR 코드 오버레이 */}
@@ -283,7 +284,7 @@ export default function LocationGeneratorPage() {
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16">
             <button 
               onClick={() => copyToClipboard(code)}
-              className="text-[12px] font-mono font-bold flex items-center gap-1 bg-white/80 px-2 py-1 rounded"
+              className="text-[12px] font-mono font-bold flex items-center gap-1 py-2"
               style={{ color: '#000000' }}
             >
               {code}
