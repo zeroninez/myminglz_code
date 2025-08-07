@@ -67,21 +67,6 @@ export default function LocationGeneratorPage() {
     }
   }, [locationSlug]);
 
-  // sessionStorage로 상태 복원 (앱 전환 감지 후 페이지 새로고침 시)
-  useEffect(() => {
-    const pendingStep = sessionStorage.getItem('pendingStep');
-    const pendingPhoto = sessionStorage.getItem('pendingPhoto');
-    
-    if (pendingStep === 'success' && pendingPhoto) {
-      // 바로 쿠폰 발급 완료 페이지로 이동
-      setUserPhotoUrl(pendingPhoto);
-      setShareCompleted(true);
-      // sessionStorage 정리
-      sessionStorage.removeItem('pendingStep');
-      sessionStorage.removeItem('pendingPhoto');
-    }
-  }, []);
-
   // shareCompleted가 true가 되면 자동으로 쿠폰 발급
   useEffect(() => {
     if (shareCompleted && userPhotoUrl) {
@@ -93,7 +78,8 @@ export default function LocationGeneratorPage() {
   const handlePhotoUploaded = (imageUrl: string) => {
     setUserPhotoUrl(imageUrl);
     setShareCompleted(true);
-    setCurrentStep('coupon');
+    // 바로 쿠폰 발급 페이지로 이동 (coupon 단계 건너뛰기)
+    setCurrentStep('success');
   };
 
   // 에러 핸들러
