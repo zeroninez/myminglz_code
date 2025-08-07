@@ -50,7 +50,7 @@ export default function StorePage() {
   }, []);
 
   return (
-    <div className="min-h-screen relative w-[auto] mx-auto" style={{
+    <div className="h-full relative w-[auto] mx-auto" style={{
       background: `linear-gradient(
         to top,
         #b8d8ff 0px,

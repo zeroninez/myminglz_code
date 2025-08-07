@@ -91,17 +91,18 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       const nav = navigator as any;
       if (nav.canShare && nav.canShare(shareOptions)) {
         await nav.share(shareOptions);
+       // 앱 전환 감지 대기 (handleVisibilityChange에서 처리)
       } else {
         await nav.share({
           title: "",
           text: `${location.name}에서 멋진 조형물과 함께 사진을 찍었어요! 🎉`,
           url: window.location.href
         });
+        // 앱 전환 감지 대기 (handleVisibilityChange에서 처리)
       }
 
-      // === 여기서 바로 다음 단계로 이동 ===
-      onPhotoUploaded(capturedPhoto!, false);
-      setIsSharing(false);
+      // Web Share API 성공 후 바로 넘어가지 않고 앱 전환 감지 대기
+      // onPhotoUploaded는 handleVisibilityChange에서 호출됨
 
     } catch (error) {
       console.error('공유 실패:', error);
