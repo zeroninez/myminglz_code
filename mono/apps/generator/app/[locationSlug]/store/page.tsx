@@ -50,7 +50,7 @@ export default function StorePage() {
   }, []);
 
   return (
-    <div className="min-h-screen relative w-[auto] h-[852px] mx-auto overflow-hidden" style={{
+    <div className="min-h-screen relative w-[auto] mx-auto" style={{
       background: `linear-gradient(
         to top,
         #b8d8ff 0px,
@@ -95,7 +95,7 @@ export default function StorePage() {
         </div>
 
         {/* 혜택 목록 컨테이너 */}
-        <div className="flex justify-center px-5">
+        <div className="flex justify-center px-5 pb-20">
           <div className="relative w-[370px]">
             {/* 반투명 배경 컨테이너 */}
             <div className="absolute inset-0 bg-[rgba(211,231,255,0.3)] rounded-[8px]" />

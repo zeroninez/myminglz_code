@@ -175,25 +175,54 @@ export default function LocationGeneratorPage() {
     });
   };
 
-  //to do 이미지 별도로 만들어서 다운하게 바꿔야할듯, 그리고 바로 갤러리로 다운
   // 이미지 다운로드
   const handleDownload = async (code: string) => {
-    const element = document.querySelector('.coupon-container') as HTMLElement;
-    if (!element) return;
-
     try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: null,
-        logging: false,
-        width: 500,
-        height: 500,
-        imageTimeout: 0,
-        x: -100,
-      });
+      // Canvas 생성
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
 
+      // 캔버스 크기 설정 (1080x1080 원본 크기)
+      canvas.width = 1080;
+      canvas.height = 1080;
+
+      // 새로운 배경 이미지 로드
+      const bgImage = new Image();
+      
+             await new Promise((resolve, reject) => {
+         bgImage.onload = resolve;
+         bgImage.onerror = reject;
+         bgImage.src = '/coupon/이미지 갤러리 저장 (2배수).svg';
+       });
+
+      // 배경 이미지 그리기
+      ctx.drawImage(bgImage, 0, 0, 1080, 1080);
+
+      // QR 코드 생성 및 추가 (쿠폰 중앙 영역)
+      if (qrRef.current) {
+        const qrSize = 345;
+        const qrCanvas = document.createElement('canvas');
+        const qrCtx = qrCanvas.getContext('2d');
+        if (qrCtx) {
+          qrCanvas.width = qrSize;
+          qrCanvas.height = qrSize;
+          
+          // 기존 QR 코드를 새 캔버스에 복사
+          qrCtx.drawImage(qrRef.current, 0, 0, qrSize, qrSize);
+          
+          // QR 코드를 메인 캔버스에 추가 (더 낮게)
+          ctx.drawImage(qrCanvas, 380, 383, 345, 345);
+        }
+      }
+
+      // 쿠폰 코드 텍스트 추가 (QR 코드 아래, 더 낮게)
+      ctx.font = 'bold 36px Arial, sans-serif';
+      ctx.fillStyle = '#000000';
+      ctx.textAlign = 'center';
+      ctx.fillText(code, 540, 800);
+
+      // 이미지 다운로드
       const dataUrl = canvas.toDataURL('image/png');
       const link = document.createElement('a');
       link.download = generateFilename(
@@ -237,79 +266,48 @@ export default function LocationGeneratorPage() {
   }) {
     return (
       <div className="relative w-full max-w-[500px] h-[300px] mx-auto flex justify-center items-center">
-        {/* 쿠폰 컨테이너 */}
-        <div className="coupon-container relative">
-          {/* 캐릭터들 */}
-          <img 
-            src="/coupon/5e3f834fb0503d119dca1bf08d2870d26b68b76b.png"
-            alt="green character"
-            className="absolute -left-[44px] top-[195px] w-[149px] h-[150px] scale-x-[-1] z-10"
+        {/* SVG 쿠폰 이미지 */}
+        <div className="relative">
+          <img
+            src="/coupon/이미지 갤러리 저장 (2배수) (1).svg"
+            alt="쿠폰 이미지"
+            className="w-[393px] h-[471px] object-contain"
           />
-          <img 
-            src="/coupon/8dacf78389c9026b25d30382761645b95da348f2.png"
-            alt="pink character"
-            className="absolute -left-[77px] top-[95px] -z-10"
-          />
-          <img 
-            src="/coupon/afb757e706c3536fc2c089807202b5a557471ac6.png"
-            alt="blue character"
-            className="absolute -right-25 top-[155px] w-[192px] h-[192px] z-10"
-          />
-          <img 
-            src="/coupon/482b5f6bf6cde5ddc8423735dd80373845304d37.png"
-            alt="orange character"
-            className="absolute -right-10 top-4 w-[57px] h-[57px] z-10"
-          />
-
-          {/* 쿠폰 내용 */}
-          <div className="relative w-[255px] h-[340px]">
-            {/* SVG 쿠폰 테두리 */}
-            <svg
-              width="255"
-              height="340"
-              viewBox="0 0 255 400"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="absolute top-0 left-0 w-full h-full"
+          
+          {/* QR 코드 오버레이 */}
+          <div className="absolute top-[178px] left-[135px]">
+            <img src={qrUrl} alt="QR Code" className="w-[130px] h-[130px]" />
+          </div>
+          
+          {/* 쿠폰 코드 오버레이 */}
+          <div className="absolute top-[310px] left-[160px]">
+            <button 
+              onClick={() => copyToClipboard(code)}
+              className="text-[12px] font-mono font-bold flex items-center gap-1 bg-white/80 px-2 py-1 rounded"
+              style={{ color: '#000000' }}
             >
-              <g transform="translate(0, 50)">
-                <path d="M18.3477 0.464349C18.3477 5.46882 22.4962 9.52575 27.6133 9.52587C32.7305 9.52587 36.8789 5.4689 36.8789 0.464349C36.8789 0.393498 36.8757 0.322897 36.874 0.252435L58.2656 0.252435C58.264 0.3229 58.2598 0.393495 58.2598 0.464349C58.2598 5.46876 62.4083 9.52565 67.5254 9.52587C72.6426 9.52587 76.791 5.4689 76.791 0.464349C76.791 0.393496 76.7878 0.322899 76.7861 0.252435L98.1797 0.252435C98.178 0.322578 98.1738 0.392844 98.1738 0.463372C98.1738 5.46788 102.322 9.52483 107.439 9.5249C112.557 9.5249 116.705 5.46792 116.705 0.463372C116.705 0.392849 116.702 0.322573 116.7 0.252435L138.092 0.252435C138.09 0.322799 138.087 0.393597 138.087 0.464349C138.087 5.46876 142.235 9.52587 147.353 9.52587C152.47 9.52579 156.618 5.46871 156.618 0.464349C156.618 0.393592 156.614 0.322804 156.612 0.252435L178.009 0.252435C178.007 0.322898 178.004 0.393496 178.004 0.464349C178.004 5.4689 182.152 9.52587 187.27 9.52587C192.387 9.52566 196.535 5.46877 196.535 0.464349C196.535 0.393495 196.531 0.3229 196.529 0.252435L217.92 0.252435C217.918 0.322901 217.914 0.393494 217.914 0.464349C217.914 5.4689 222.063 9.52575 227.18 9.52587C232.297 9.52587 236.445 5.4689 236.445 0.464349C236.445 0.393498 236.442 0.322897 236.44 0.252435L246.75 0.252435C251.16 0.252475 254.735 3.82781 254.735 8.23779V273.852C254.735 278.262 251.16 281.837 246.75 281.837H7.99023C3.58009 281.837 0.00489546 278.262 0.00488281 273.852L0.00488281 8.23779C0.00506236 3.82779 3.58019 0.252435 7.99023 0.252435L18.3535 0.252435C18.3519 0.322901 18.3477 0.393494 18.3477 0.464349Z" fill="white"/>
-                <rect y="281.84" width="254.73" height="59.0791" rx="7.98528" fill="white"/>
-                <path d="M13.0439 281.84L241.688 281.84" stroke="#469AFF" strokeWidth="1.59706" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="5.59 6.39"/>
-              </g>
-            </svg>
-
-            {/* 내부 컨텐츠 */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center pt-16">
-              <div className="text-[22px] font-bold mb-8" style={{ color: '#479aff' }}>EVENT BENEFIT</div>
-              <div className="mb-6 -mt-6">
-                <img src={qrUrl} alt="QR Code" className="w-[120px] h-[120px]" />
-              </div>
-              <div className="text-[10px] text-black text-center -mt-4">
-                {description}
-              </div>
-              <button 
-                onClick={() => copyToClipboard(code)}
-                className="text-[9px] font-mono mb-8 flex items-center gap-1"
-                style={{ color: '#666666', transition: 'color 0.2s' }}
-              >
-                {code}
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-              </button>
-              <div className="absolute bottom-[20px] left-0 right-0 flex justify-center items-center w-full">
-                <button onClick={onDownload} className="flex items-center gap-2">
-                  <span className="text-[13px]" style={{ color: 'rgba(0, 0, 0, 0.8)' }}>이미지 다운로드</span>
-                  <img 
-                    src="/Frame 44.svg"
-                    alt="download"
-                    className="w-4 h-4 -ml-1"
-                  />
-                </button>
-              </div>
-            </div>
+              {code}
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
+          </div>
+          
+          {/* 다운로드 버튼 */}
+          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+            <button 
+              onClick={onDownload} 
+              className="flex items-center justify-start gap-1 bg-[#D0E0FF]/80 backdrop-blur-sm rounded-full border border-white/30 hover:bg-[#D0E0FF]/90 transition-all duration-200 pl-4"
+              style={{ width: '136px', height: '37px' }}
+            >
+              <img 
+                src="/Frame 44.svg"
+                alt="download"
+                className="w-4 h-4 filter brightness-0 invert"
+              />
+              <span className="text-[14px] font-medium text-white">이미지 저장</span>
+            </button>
           </div>
         </div>
       </div>
@@ -481,7 +479,7 @@ export default function LocationGeneratorPage() {
                   />
 
                   {/* 혜택 상점 보기 버튼 추가 */}
-                  <div className="w-[393px] px-[18px] mt-20 relative z-50">
+                  <div className="w-[393px] px-[18px] mt-22 relative z-50">
                     <button
                       onClick={() => window.location.href = `/${locationSlug}/store`}
                       className="w-full h-[52px] bg-black text-white rounded-[14px] text-[17px] font-medium hover:bg-gray-900 transition-colors"
