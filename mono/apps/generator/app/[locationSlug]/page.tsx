@@ -366,7 +366,7 @@ export default function LocationGeneratorPage() {
         </div>
 
         {/* 메인 컨텐츠 */}
-        <div className="h-[852px] mx-auto">
+        <div className="min-h-screen mx-auto">
           <div>
             {currentStep === 'intro' && (
               <div>
@@ -388,7 +388,7 @@ export default function LocationGeneratorPage() {
             )}
 
             {currentStep === 'coupon' && shareCompleted && (
-              <div className="relative w-[auto] h-[852px] mx-auto overflow-hidden bg-[#151515]">
+              <div className="relative w-[auto] min-h-screen mx-auto overflow-hidden bg-[#151515]">
                 {/* 배경 그리드 */}
                 <div 
                   className="absolute inset-0"
@@ -442,7 +442,7 @@ export default function LocationGeneratorPage() {
             )}
 
             {currentStep === 'success' && savedImageUrl && (
-              <div className="relative w-[auto] h-[852px] mx-auto overflow-hidden" style={{
+              <div className="relative w-[auto] min-h-screen mx-auto overflow-hidden" style={{
                 background: `linear-gradient(
                   to top,
                   #b8d8ff 0px,
