@@ -216,11 +216,11 @@ export default function LocationGeneratorPage() {
         }
       }
 
-      // 쿠폰 코드 텍스트 추가 (QR 코드 아래, 더 낮게)
+      // 쿠폰 코드 텍스트 추가 (QR 코드 아래, 더 낮게, 오른쪽으로 조정)
       ctx.font = 'bold 36px Arial, sans-serif';
       ctx.fillStyle = '#000000';
       ctx.textAlign = 'center';
-      ctx.fillText(code, 540, 800);
+      ctx.fillText(code, 550, 800);
 
       // 이미지 다운로드
       const dataUrl = canvas.toDataURL('image/png');
@@ -296,7 +296,7 @@ export default function LocationGeneratorPage() {
           </div>
           
           {/* 다운로드 버튼 */}
-          <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
             <button 
               onClick={onDownload} 
               className="flex items-center justify-start gap-1 bg-[#D0E0FF]/80 backdrop-blur-sm rounded-full border border-white/30 hover:bg-[#D0E0FF]/90 transition-all duration-200 pl-4"
@@ -480,7 +480,7 @@ export default function LocationGeneratorPage() {
                   />
 
                   {/* 혜택 상점 보기 버튼 추가 */}
-                  <div className="w-[393px] px-[18px] mt-22 relative z-50">
+                  <div className="w-[393px] px-[18px] mt-20 relative z-50">
                     <button
                       onClick={() => window.location.href = `/${locationSlug}/store`}
                       className="w-full h-[52px] bg-black text-white rounded-[14px] text-[17px] font-medium hover:bg-gray-900 transition-colors"
