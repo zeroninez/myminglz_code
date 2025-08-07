@@ -275,12 +275,12 @@ export default function LocationGeneratorPage() {
           />
           
           {/* QR 코드 오버레이 */}
-          <div className="absolute top-[178px] left-[135px]">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <img src={qrUrl} alt="QR Code" className="w-[130px] h-[130px]" />
           </div>
           
           {/* 쿠폰 코드 오버레이 */}
-          <div className="absolute top-[310px] left-[160px]">
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16">
             <button 
               onClick={() => copyToClipboard(code)}
               className="text-[12px] font-mono font-bold flex items-center gap-1 bg-white/80 px-2 py-1 rounded"
