@@ -32,17 +32,8 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         // 앱에서 돌아왔을 때 성공으로 처리
         setIsSuccess(true);
         setProgress(100);
-        
-        // 인스타그램 모달 닫기를 위해 sessionStorage에 저장 후 새로고침
-        sessionStorage.setItem('pendingPhoto', capturedPhoto!);
-        sessionStorage.setItem('pendingStep', 'success');
-        sessionStorage.setItem('locationSlug', location.slug);
-        
-        // 새로고침으로 Web Share API 모달 닫기
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
-        
+        // 앱 전환 감지로 인한 이동
+        onPhotoUploaded(capturedPhoto!, false);
         shareAttemptRef.current = null;
         appSwitchAttemptRef.current = false;
         setIsSharing(false);

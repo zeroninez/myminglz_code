@@ -153,11 +153,6 @@ export default function SuccessPage() {
          // userPhoto와 locationSlug는 유지 (새로고침 시 복원을 위해)
          // sessionStorage.removeItem('userPhoto'); // 제거
          // sessionStorage.removeItem('locationSlug'); // 제거
-         
-         // 인스타그램 모달 닫기를 위해 쿠폰 발급 완료 후 새로고침
-         setTimeout(() => {
-           window.location.reload();
-         }, 1000); // 1초 후 새로고침
        }, 500);
     } catch (error) {
       console.error("쿠폰 발급 오류:", error);
