@@ -32,7 +32,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         // 앱에서 돌아왔을 때 성공으로 처리
         setIsSuccess(true);
         setProgress(100);
-        // 바로 쿠폰 발급 페이지로 이동 (페이지 새로고침 없이)
+        // 앱 전환 감지로 인한 이동
         onPhotoUploaded(capturedPhoto!, false);
         shareAttemptRef.current = null;
         appSwitchAttemptRef.current = false;

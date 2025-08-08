@@ -76,7 +76,7 @@ export default function StorePage() {
         {/* 헤더 */}
         <div className="relative px-5 pt-10 pb-6">
           <button 
-            onClick={() => window.location.href = `/${locationSlug}`}
+            onClick={() => window.location.href = `/${locationSlug}/success`}
             className="absolute left-4 top-10"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
