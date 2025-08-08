@@ -33,13 +33,15 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         setIsSuccess(true);
         setProgress(100);
         
-        // 인스타그램 스토리 모달 닫기를 위해 새로고침 후 이동
+        // 인스타그램 모달 닫기를 위해 sessionStorage에 저장 후 새로고침
         sessionStorage.setItem('pendingPhoto', capturedPhoto!);
         sessionStorage.setItem('pendingStep', 'success');
         sessionStorage.setItem('locationSlug', location.slug);
         
         // 새로고침으로 Web Share API 모달 닫기
-        window.location.reload();
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
         
         shareAttemptRef.current = null;
         appSwitchAttemptRef.current = false;

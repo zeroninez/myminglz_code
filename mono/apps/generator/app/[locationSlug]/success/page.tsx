@@ -69,22 +69,6 @@ export default function SuccessPage() {
     const couponGenerated = sessionStorage.getItem('couponGenerated');
     const savedGeneratedCode = sessionStorage.getItem('generatedCode');
     const savedImageUrl = sessionStorage.getItem('savedImageUrl');
-    const pendingPhoto = sessionStorage.getItem('pendingPhoto');
-    const pendingStep = sessionStorage.getItem('pendingStep');
-    
-    // 앱 전환 감지로 인한 새로고침 후 이동 (인스타그램 스토리 모달 닫기용)
-    if (pendingPhoto && pendingStep === 'success' && storedLocationSlug === locationSlug) {
-      console.log('앱 전환 감지로 인한 이동:', { pendingPhoto, pendingStep });
-      setUserPhotoUrl(pendingPhoto);
-      // pendingPhoto를 userPhoto로 복사
-      sessionStorage.setItem('userPhoto', pendingPhoto);
-      // pending 데이터 정리
-      sessionStorage.removeItem('pendingPhoto');
-      sessionStorage.removeItem('pendingStep');
-      // 쿠폰 자동 발급
-      handleGetCoupon();
-      return;
-    }
     
     // 이미 쿠폰이 발급된 경우 (새로고침 시)
     if (couponGenerated === 'true' && savedGeneratedCode && savedImageUrl && storedLocationSlug === locationSlug) {
@@ -169,6 +153,11 @@ export default function SuccessPage() {
          // userPhoto와 locationSlug는 유지 (새로고침 시 복원을 위해)
          // sessionStorage.removeItem('userPhoto'); // 제거
          // sessionStorage.removeItem('locationSlug'); // 제거
+         
+         // 인스타그램 모달 닫기를 위해 쿠폰 발급 완료 후 새로고침
+         setTimeout(() => {
+           window.location.reload();
+         }, 1000); // 1초 후 새로고침
        }, 500);
     } catch (error) {
       console.error("쿠폰 발급 오류:", error);
