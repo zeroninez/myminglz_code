@@ -180,27 +180,9 @@ export default function StoreDetailPage() {
        <div className="fixed bottom-6 left-6 right-6">
          <button 
            onClick={() => {
-             // 팝업 허용 확인 및 카카오맵 열기
-             const openKakaoMap = () => {
-               // 먼저 웹으로 열어서 팝업 허용 확인
-               const webUrl = `https://map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
-               const popup = window.open(webUrl, '_blank', 'width=800,height=600');
-               
-               if (popup) {
-                 // 팝업이 성공적으로 열렸으면 앱으로도 시도
-                 setTimeout(() => {
-                   const kakaoMapUrl = `kakaomap://look?q=${encodeURIComponent(dummyStoreDetail.address)}`;
-                   window.location.href = kakaoMapUrl;
-                 }, 1000);
-               } else {
-                 // 팝업이 차단된 경우 사용자에게 안내
-                 alert('팝업이 차단되었습니다. 브라우저 설정에서 팝업을 허용해주세요.');
-                 // 직접 링크로 이동
-                 window.open(webUrl, '_blank');
-               }
-             };
-             
-             openKakaoMap();
+             // 카카오맵 웹으로 열기
+             const webUrl = `https://map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
+             window.open(webUrl, '_blank');
            }}
            className="w-full bg-black text-white py-4 rounded-lg font-medium text-lg"
          >
