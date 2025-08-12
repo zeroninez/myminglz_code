@@ -180,15 +180,9 @@ export default function StoreDetailPage() {
        <div className="fixed bottom-6 left-6 right-6">
          <button 
            onClick={() => {
-             // 카카오맵 앱으로 열기 (iOS/Android)
-             const kakaoMapUrl = `kakaomap://look?q=${encodeURIComponent(dummyStoreDetail.address)}`;
-               window.location.href = kakaoMapUrl;
-               
-               // 앱이 설치되지 않은 경우 웹으로 열기 (3초 후)
-               setTimeout(() => {
-                 const webUrl = `https://map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
-                 window.open(webUrl, '_blank');
-               }, 3000);
+             // 카카오맵 모바일 웹으로 열기 (앱 전환 최소화)
+             const webUrl = `https://m.map.kakao.com/actions/searchView?q=${encodeURIComponent(dummyStoreDetail.address)}&sort=0`;
+             window.open(webUrl, '_blank');
            }}
            className="w-full bg-black text-white py-4 rounded-lg font-medium text-lg"
          >
