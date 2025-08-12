@@ -206,9 +206,6 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           {/* 검은줄 */}
           <div className="w-full h-1"></div>
           
-          {/* 중앙 검은색 선 */}
-          <div className="w-[133px] h-[5px] bg-black mx-auto mt-8 rounded-full"></div>
-          
           {/* 하단 스텝 표시기 */}
           <div className="flex justify-center items-center mt-8 space-x-2">
             {/* STEP 1 */}
@@ -374,9 +371,6 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           <>
             {/* 검은줄 */}
             <div className="w-full h-1"></div>
-            
-            {/* 중앙 검은색 선 */}
-            <div className="w-[133px] h-[5px] bg-black mx-auto mt-8 rounded-full"></div>
             
             {/* 하단 스텝 표시기 */}
             <div className="flex justify-center items-center mt-8 space-x-2">
