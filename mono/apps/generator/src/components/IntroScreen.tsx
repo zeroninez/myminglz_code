@@ -341,26 +341,19 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 <div className="w-full mt-[-10px] mb-[0px] flex justify-center">
           <button
             onClick={() => {
-              // STEP 1과 동일한 방식으로 스크롤
-              const targetScrollTop = calculateStepTargetPosition(1);
-              setIsScrolling(true);
-              
-              window.scrollTo({
-                top: targetScrollTop,
-                behavior: 'smooth'
-              });
-              
-              // 스크롤 애니메이션 완료 후 currentStep 설정
-              setTimeout(() => {
-                const actualScrollPosition = window.scrollY;
-                setActualStepPositions(prev => {
-                  const newPositions = [...prev];
-                  newPositions[0] = actualScrollPosition;
-                  return newPositions;
+              // DOM 요소 기반으로 정확한 위치로 스크롤
+              const step1Element = document.querySelector('[data-step="1"]');
+              if (step1Element) {
+                step1Element.scrollIntoView({ 
+                  behavior: 'smooth',
+                  block: 'start' // 요소의 상단에 맞춤
                 });
-                setCurrentStep(1);
-                setIsScrolling(false);
-              }, 1000);
+                
+                // 스크롤 완료 후 currentStep 설정
+                setTimeout(() => {
+                  setCurrentStep(1);
+                }, 1000);
+              }
             }}
             className="transition-transform hover:scale-105 active:scale-95"
           >
@@ -443,6 +436,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       {steps.map((step, index) => (
         <React.Fragment key={`additional-${step.id}`}>
           <div
+            data-step={step.id}
             className={`relative w-full flex flex-col items-center justify-center px-6 ${
               step.id === 4 ? 'min-h-screen' : 'h-[534px]'
             } pt-[122px]`}
