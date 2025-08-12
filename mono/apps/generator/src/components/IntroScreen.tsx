@@ -340,7 +340,28 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
         {/* 더 알아보기 버튼 */}
 <div className="w-full mt-[-10px] mb-[0px] flex justify-center">
           <button
-            onClick={() => scrollToStep(1)}
+            onClick={() => {
+              // STEP 1과 동일한 방식으로 스크롤
+              const targetScrollTop = calculateStepTargetPosition(1);
+              setIsScrolling(true);
+              
+              window.scrollTo({
+                top: targetScrollTop,
+                behavior: 'smooth'
+              });
+              
+              // 스크롤 애니메이션 완료 후 currentStep 설정
+              setTimeout(() => {
+                const actualScrollPosition = window.scrollY;
+                setActualStepPositions(prev => {
+                  const newPositions = [...prev];
+                  newPositions[0] = actualScrollPosition;
+                  return newPositions;
+                });
+                setCurrentStep(1);
+                setIsScrolling(false);
+              }, 1000);
+            }}
             className="transition-transform hover:scale-105 active:scale-95"
           >
             <img
@@ -369,7 +390,6 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       <div className="relative w-full h-[122px]" style={{ backgroundColor: '#75B4FF' }}>
         {currentStep === 0 && (
           <>
-            {/* 검은줄 */}
             <div className="w-full h-1"></div>
             
             {/* 하단 스텝 표시기 */}
