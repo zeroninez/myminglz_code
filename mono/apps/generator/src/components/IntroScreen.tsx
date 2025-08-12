@@ -128,7 +128,14 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
   }, []);
 
   return (
-    <main className="relative min-h-screen overflow-y-auto">
+    <main 
+      className="relative min-h-screen overflow-y-auto overflow-x-hidden" 
+      style={{ 
+        touchAction: 'pan-y',
+        overscrollBehaviorX: 'none',
+        WebkitOverflowScrolling: 'touch'
+      }}
+    >
       {/* 고정된 Progress Indicator (상단) - STEP 1-4에서만 표시 */}
       {currentStep > 0 && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-[#75B4FF]">
