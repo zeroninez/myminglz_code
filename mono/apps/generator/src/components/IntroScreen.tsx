@@ -214,10 +214,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
                 const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
                 if (progressIndicatorElement) {
                   const elementTop = progressIndicatorElement.offsetTop;
-                  const progressIndicatorHeight = 122; // Progress Indicator 높이
-                  const fixedIndicatorHeight = 80;     // 상단 고정 인디케이터 높이
-                  // Progress Indicator 하단 80px 영역에 상단 인디케이터가 겹치도록 계산
-                  const targetPosition = elementTop + (progressIndicatorHeight - fixedIndicatorHeight);
+                  // 고정된 42px 오프셋 사용 (122 - 80 = 42)
+                  const targetPosition = elementTop + 42;
                   
                   window.scrollTo({
                     top: targetPosition,
@@ -408,14 +406,12 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 <div className="w-full mt-[-10px] mb-[0px] flex justify-center">
           <button
             onClick={() => {
-              // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동
+              // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동 (고정값 사용)
               const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
               if (progressIndicatorElement) {
                 const elementTop = progressIndicatorElement.offsetTop;
-                const progressIndicatorHeight = 122; // Progress Indicator 높이
-                const fixedIndicatorHeight = 80;     // 상단 고정 인디케이터 높이
-                // Progress Indicator 하단 80px 영역에 상단 인디케이터가 겹치도록 계산
-                const targetPosition = elementTop + (progressIndicatorHeight - fixedIndicatorHeight);
+                // 고정된 42px 오프셋 사용 (122 - 80 = 42)
+                const targetPosition = elementTop + 42;
                 
                 window.scrollTo({
                   top: targetPosition,
@@ -467,10 +463,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
                   const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
                   if (progressIndicatorElement) {
                     const elementTop = progressIndicatorElement.offsetTop;
-                    const progressIndicatorHeight = 122; // Progress Indicator 높이
-                    const fixedIndicatorHeight = 80;     // 상단 고정 인디케이터 높이
-                    // Progress Indicator 하단 80px 영역에 상단 인디케이터가 겹치도록 계산
-                    const targetPosition = elementTop + (progressIndicatorHeight - fixedIndicatorHeight);
+                    // 고정된 42px 오프셋 사용 (122 - 80 = 42)
+                    const targetPosition = elementTop + 42;
                     
                     window.scrollTo({
                       top: targetPosition,
