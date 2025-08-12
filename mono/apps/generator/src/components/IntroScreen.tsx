@@ -21,9 +21,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
   const [error, setError] = useState<string | null>(null);
   const [showAllBenefits, setShowAllBenefits] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [actualStepPositions, setActualStepPositions] = useState<number[]>([]);
-  const [showStepPages, setShowStepPages] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // 사용하지 않는 state들 제거됨
 
   const steps = [
     {
@@ -94,100 +92,31 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       return;
     }
     
-    // 각 STEP의 목표 위치를 공통 함수로 계산
-    let currentStepIndex = 1;
-    
-    // 실제 스크롤 위치가 있으면 우선 사용, 없으면 계산된 위치 사용
-    for (let i = 0; i < 4; i++) {
-      const actualPosition = actualStepPositions[i];
-      const calculatedPosition = calculateStepTargetPosition(i + 1);
+    // Progress Indicator 영역
+    const progressIndicator = document.querySelector('[data-progress-indicator]') as HTMLElement;
+    if (progressIndicator) {
+      const progressIndicatorTop = progressIndicator.offsetTop;
       
-      // 실제 위치가 있으면 사용, 없으면 계산된 위치 사용
-      const referencePosition = actualPosition !== undefined ? actualPosition : calculatedPosition;
-      
-      let earlyActivation;
-      if (i === 0) {
-        // STEP 1은 50px 여유값
-        earlyActivation = 50;
-      } else {
-        // STEP 2, 3, 4는 100px 여유값 (실제 위치 기준이므로 적게)
-        earlyActivation = 0;
+      // STEP 1 영역
+      if (scrollTop >= progressIndicatorTop - 100) {
+        setCurrentStep(1);
       }
       
-      if (scrollTop >= referencePosition - earlyActivation) {
-        currentStepIndex = i + 1;
+      // STEP 2, 3, 4는 각각의 gap 컨테이너 기준으로 체크
+      for (let i = 1; i <= 3; i++) {
+        const gapElement = document.querySelector(`[data-gap="${i}"]`) as HTMLElement;
+        if (gapElement && scrollTop >= gapElement.offsetTop - 50) {
+          setCurrentStep(i + 1);
+        }
       }
     }
-    
-    setCurrentStep(Math.min(currentStepIndex, 4));
   };
 
   const handleShowAllBenefits = () => {
     setShowAllBenefits(true);
   };
 
-  // 공통 함수: STEP의 목표 스크롤 위치 계산
-  const calculateStepTargetPosition = (stepIndex: number) => {
-    const windowHeight = window.innerHeight;
-    const progressIndicatorHeight = 122;
-    const stepPadding = 122;
-    const stepContentHeight = 534;
-    const stepGap = 122;
-    const topIndicatorHeight = 108;
-    const targetOffset = 80;
-    
-    const stepAreaStart = windowHeight + progressIndicatorHeight;
-    let stepAbsolutePosition = stepAreaStart;
-    
-    // 이전 STEP들의 누적 높이
-    for (let i = 1; i < stepIndex; i++) {
-      stepAbsolutePosition += stepPadding + stepContentHeight;
-      if (i < 4) {
-        stepAbsolutePosition += stepGap;
-      }
-    }
-    
-    // STEP별 오프셋 적용
-    if (stepIndex === 1) {
-      return stepAbsolutePosition - targetOffset;
-    } else if (stepIndex === 2) {
-      return stepAbsolutePosition - (topIndicatorHeight + targetOffset);
-    } else if (stepIndex === 3) {
-      const gapOffset = -70;
-      return stepAbsolutePosition - stepPadding - stepGap + gapOffset;
-    } else {
-      const gapOffset = -190;
-      return stepAbsolutePosition - stepPadding - stepGap + gapOffset;
-    }
-  };
-
-  // 특정 스텝으로 스크롤하는 함수
-  const scrollToStep = (stepIndex: number) => {
-    const targetScrollTop = calculateStepTargetPosition(stepIndex);
-    
-    // 스크롤 애니메이션 시작
-    setIsScrolling(true);
-    
-    window.scrollTo({
-      top: targetScrollTop,
-      behavior: 'smooth'
-    });
-    
-    // 스크롤 애니메이션 완료 후 currentStep 설정 및 실제 위치 저장
-    setTimeout(() => {
-      const actualScrollPosition = window.scrollY;
-      
-      // 실제 스크롤 위치를 배열에 저장 (인덱스 = stepIndex - 1)
-      setActualStepPositions(prev => {
-        const newPositions = [...prev];
-        newPositions[stepIndex - 1] = actualScrollPosition;
-        return newPositions;
-      });
-      
-      setCurrentStep(stepIndex); // 애니메이션 완료 후 불 켜짐
-      setIsScrolling(false);
-    }, 1000);
-  };
+  // 사용하지 않는 복잡한 스크롤 계산 함수들 제거됨
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
@@ -199,7 +128,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
   }, []);
 
   return (
-    <main ref={containerRef} className="relative min-h-screen overflow-y-auto">
+    <main className="relative min-h-screen overflow-y-auto">
       {/* 고정된 Progress Indicator (상단) - STEP 1-4에서만 표시 */}
       {currentStep > 0 && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-[#75B4FF]">
@@ -211,8 +140,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             <button 
               onClick={() => {
                 // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동 (더 알아보기와 동일)
-                const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
-                if (progressIndicatorElement) {
+                const progressIndicatorElement = document.querySelector('[data-progress-indicator]') as HTMLElement;
+                if (progressIndicatorElement && progressIndicatorElement.offsetTop !== undefined) {
                   const elementTop = progressIndicatorElement.offsetTop;
                   // 고정된 42px 오프셋 사용 (122 - 80 = 42)
                   const targetPosition = elementTop + 42;
@@ -241,8 +170,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             <button 
               onClick={() => {
                 // STEP 2 위 빈 컨테이너와 겹치는 위치로 이동
-                const gapElement = document.querySelector('[data-gap="1"]');
-                if (gapElement) {
+                const gapElement = document.querySelector('[data-gap="1"]') as HTMLElement;
+                if (gapElement && gapElement.offsetTop !== undefined) {
                   const elementTop = gapElement.offsetTop;
                   const targetPosition = elementTop;
                   
@@ -270,8 +199,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             <button 
               onClick={() => {
                 // STEP 3 위 빈 컨테이너와 겹치는 위치로 이동
-                const gapElement = document.querySelector('[data-gap="2"]');
-                if (gapElement) {
+                const gapElement = document.querySelector('[data-gap="2"]') as HTMLElement;
+                if (gapElement && gapElement.offsetTop !== undefined) {
                   const elementTop = gapElement.offsetTop;
                   const targetPosition = elementTop;
                   
@@ -299,8 +228,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             <button 
               onClick={() => {
                 // STEP 4 위 빈 컨테이너와 겹치는 위치로 이동
-                const gapElement = document.querySelector('[data-gap="3"]');
-                if (gapElement) {
+                const gapElement = document.querySelector('[data-gap="3"]') as HTMLElement;
+                if (gapElement && gapElement.offsetTop !== undefined) {
                   const elementTop = gapElement.offsetTop;
                   const targetPosition = elementTop;
                   
@@ -407,8 +336,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           <button
             onClick={() => {
               // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동 (고정값 사용)
-              const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
-              if (progressIndicatorElement) {
+              const progressIndicatorElement = document.querySelector('[data-progress-indicator]') as HTMLElement;
+              if (progressIndicatorElement && progressIndicatorElement.offsetTop !== undefined) {
                 const elementTop = progressIndicatorElement.offsetTop;
                 // 고정된 42px 오프셋 사용 (122 - 80 = 42)
                 const targetPosition = elementTop + 42;
@@ -460,8 +389,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               <button 
                 onClick={() => {
                   // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동 (더 알아보기와 동일)
-                  const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
-                  if (progressIndicatorElement) {
+                  const progressIndicatorElement = document.querySelector('[data-progress-indicator]') as HTMLElement;
+                  if (progressIndicatorElement && progressIndicatorElement.offsetTop !== undefined) {
                     const elementTop = progressIndicatorElement.offsetTop;
                     // 고정된 42px 오프셋 사용 (122 - 80 = 42)
                     const targetPosition = elementTop + 42;
@@ -488,8 +417,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               <button 
                 onClick={() => {
                   // STEP 2 위 빈 컨테이너와 겹치는 위치로 이동
-                  const gapElement = document.querySelector('[data-gap="1"]');
-                  if (gapElement) {
+                  const gapElement = document.querySelector('[data-gap="1"]') as HTMLElement;
+                  if (gapElement && gapElement.offsetTop !== undefined) {
                     const elementTop = gapElement.offsetTop;
                     const targetPosition = elementTop;
                     
@@ -515,8 +444,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               <button 
                 onClick={() => {
                   // STEP 3 위 빈 컨테이너와 겹치는 위치로 이동
-                  const gapElement = document.querySelector('[data-gap="2"]');
-                  if (gapElement) {
+                  const gapElement = document.querySelector('[data-gap="2"]') as HTMLElement;
+                  if (gapElement && gapElement.offsetTop !== undefined) {
                     const elementTop = gapElement.offsetTop;
                     const targetPosition = elementTop;
                     
@@ -542,8 +471,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               <button 
                 onClick={() => {
                   // STEP 4 위 빈 컨테이너와 겹치는 위치로 이동
-                  const gapElement = document.querySelector('[data-gap="3"]');
-                  if (gapElement) {
+                  const gapElement = document.querySelector('[data-gap="3"]') as HTMLElement;
+                  if (gapElement && gapElement.offsetTop !== undefined) {
                     const elementTop = gapElement.offsetTop;
                     const targetPosition = elementTop;
                     
