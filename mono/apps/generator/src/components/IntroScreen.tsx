@@ -299,6 +299,45 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 
         {/* 카드 컨테이너 */}
         <div className="relative mt-[50px] w-[255px] mx-auto isolate">
+          {/* Effect 배경 이미지 */}
+          <img 
+            src="/effect.png" 
+            alt="Effect" 
+            className="absolute w-auto h-auto max-w-[399px] object-contain z-[0]"
+            style={{ 
+              top: '-49px',    // 위로 45px 이동
+              left: '-80px'   // 왼쪽으로 70px 이동
+            }}
+          />
+          
+          {/* Effect2 이미지 - 오른쪽 위 */}
+          <img 
+            src="/effect2.png"
+            alt="Effect 2" 
+            className="absolute z-10"
+            style={{ 
+              width: '37px',
+              height: '40px',
+              bottom: '-40px',     
+              left: '-60px',
+              objectFit: 'cover'
+            }}
+          />
+          
+          {/* Polygon 이미지 - 왼쪽 아래 */}
+          <img 
+            src="/polygon.png"
+            alt="Polygon" 
+            className="absolute z-10"
+            style={{ 
+              width: '73px',
+              height: '73px',
+              bottom: '-48px',  
+              right: '-10px',
+              objectFit: 'cover'
+            }}
+          />
+          
           {/* 뒷면 카드 */}
           <div className="absolute -left-[28px] top-[36px] w-[255px] h-[344px] bg-white/80 rounded-[12px] p-3 transform -rotate-[5deg] z-[1]">
             {/* 뒷면 카드 내부 영역 */}
@@ -339,8 +378,9 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
         </div>
 
         {/* 더 알아보기 버튼 */}
-<div className="w-full mt-[-10px] mb-[0px] flex justify-center">
+<div className="w-full mt-[-10px] mb-[0px] flex justify-center relative z-20">
           <button
+            className="relative z-20 transition-transform hover:scale-105 active:scale-95"
             onClick={() => {
               // 80px 상단 인디케이터가 122px Progress Indicator 하단에 겹치도록 이동 (고정값 사용)
               const progressIndicatorElement = document.querySelector('[data-progress-indicator]') as HTMLElement;
@@ -360,7 +400,6 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
                 }, 1000);
               }
             }}
-            className="transition-transform hover:scale-105 active:scale-95"
           >
             <img
               src="/button(x2).png"
