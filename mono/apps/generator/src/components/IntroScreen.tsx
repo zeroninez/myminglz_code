@@ -202,15 +202,30 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
     <main ref={containerRef} className="relative min-h-screen overflow-y-auto">
       {/* 고정된 Progress Indicator (상단) - STEP 1-4에서만 표시 */}
       {currentStep > 0 && (
-        <div className="fixed top-0 left-0 right-0 z-50" style={{ backgroundColor: 'transparent' }}>
-          {/* 검은줄 */}
-          <div className="w-full h-1"></div>
-          
-          {/* 하단 스텝 표시기 */}
-          <div className="flex justify-center items-center mt-8 space-x-2">
+        <div className="fixed top-0 left-0 right-0 z-50" style={{ backgroundColor: '#75B4FF' }}>
+          {/* Progress Indicator 영역 */}
+          <div className="w-full h-[80px] flex items-end justify-center pb-3">
+            {/* 하단 스텝 표시기 */}
+            <div className="flex justify-center items-center space-x-2">
             {/* STEP 1 */}
             <button 
-              onClick={() => scrollToStep(1)}
+              onClick={() => {
+                // Progress Indicator 컨테이너 위치로 이동 (더 알아보기와 동일)
+                const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
+                if (progressIndicatorElement) {
+                  const elementTop = progressIndicatorElement.offsetTop;
+                  const targetPosition = elementTop + 0;
+                  
+                  window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                  });
+                  
+                  setTimeout(() => {
+                    setCurrentStep(1);
+                  }, 1000);
+                }
+              }}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                 currentStep >= 1 ? 'bg-white text-[#AAD1FF]' : 'bg-[#AAD1FF]/60 text-white'
               }`}
@@ -223,7 +238,23 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             
             {/* STEP 2 */}
             <button 
-              onClick={() => scrollToStep(2)}
+              onClick={() => {
+                // STEP 2 위 빈 컨테이너와 겹치는 위치로 이동
+                const gapElement = document.querySelector('[data-gap="1"]');
+                if (gapElement) {
+                  const elementTop = gapElement.offsetTop;
+                  const targetPosition = elementTop;
+                  
+                  window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                  });
+                  
+                  setTimeout(() => {
+                    setCurrentStep(2);
+                  }, 1000);
+                }
+              }}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                 currentStep >= 2 ? 'bg-white text-[#AAD1FF]' : 'bg-[#AAD1FF]/60 text-white'
               }`}
@@ -236,7 +267,23 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             
             {/* STEP 3 */}
             <button 
-              onClick={() => scrollToStep(3)}
+              onClick={() => {
+                // STEP 3 위 빈 컨테이너와 겹치는 위치로 이동
+                const gapElement = document.querySelector('[data-gap="2"]');
+                if (gapElement) {
+                  const elementTop = gapElement.offsetTop;
+                  const targetPosition = elementTop;
+                  
+                  window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                  });
+                  
+                  setTimeout(() => {
+                    setCurrentStep(3);
+                  }, 1000);
+                }
+              }}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                 currentStep >= 3 ? 'bg-white text-[#AAD1FF]' : 'bg-[#AAD1FF]/60 text-white'
               }`}
@@ -249,13 +296,30 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
             
             {/* STEP 4 */}
             <button 
-              onClick={() => scrollToStep(4)}
+              onClick={() => {
+                // STEP 4 위 빈 컨테이너와 겹치는 위치로 이동
+                const gapElement = document.querySelector('[data-gap="3"]');
+                if (gapElement) {
+                  const elementTop = gapElement.offsetTop;
+                  const targetPosition = elementTop;
+                  
+                  window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                  });
+                  
+                  setTimeout(() => {
+                    setCurrentStep(4);
+                  }, 1000);
+                }
+              }}
               className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
                 currentStep >= 4 ? 'bg-white text-[#AAD1FF]' : 'bg-[#AAD1FF]/60 text-white'
               }`}
             >
               4
             </button>
+            </div>
           </div>
         </div>
       )}
@@ -341,12 +405,16 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 <div className="w-full mt-[-10px] mb-[0px] flex justify-center">
           <button
             onClick={() => {
-              // DOM 요소 기반으로 정확한 위치로 스크롤
-              const step1Element = document.querySelector('[data-step="1"]');
-              if (step1Element) {
-                step1Element.scrollIntoView({ 
-                  behavior: 'smooth',
-                  block: 'start' // 요소의 상단에 맞춤
+              // Progress Indicator 컨테이너 위치 찾기
+              const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
+              if (progressIndicatorElement) {
+                const elementTop = progressIndicatorElement.offsetTop;
+                // 추가로 50px 더 아래로 이동 (원하는 px 값으로 조정 가능)
+                const targetPosition = elementTop + 50;
+                
+                window.scrollTo({
+                  top: targetPosition,
+                  behavior: 'smooth'
                 });
                 
                 // 스크롤 완료 후 currentStep 설정
@@ -380,16 +448,32 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       </div>
 
       {/* Progress Indicator 컨테이너 (하단 122px) */}
-      <div className="relative w-full h-[122px]" style={{ backgroundColor: '#75B4FF' }}>
+      <div data-progress-indicator className="relative w-full h-[122px]" style={{ backgroundColor: '#75B4FF' }}>
         {currentStep === 0 && (
           <>
-            <div className="w-full h-1"></div>
-            
-            {/* 하단 스텝 표시기 */}
-            <div className="flex justify-center items-center mt-8 space-x-2">
+            {/* Progress Indicator 영역 */}
+            <div className="w-full h-full flex items-end justify-center pb-3">
+              {/* 하단 스텝 표시기 */}
+              <div className="flex justify-center items-center space-x-2">
               {/* STEP 1 */}
               <button 
-                onClick={() => scrollToStep(1)}
+                onClick={() => {
+                  // Progress Indicator 컨테이너 위치로 이동 (더 알아보기와 동일)
+                  const progressIndicatorElement = document.querySelector('[data-progress-indicator]');
+                  if (progressIndicatorElement) {
+                    const elementTop = progressIndicatorElement.offsetTop;
+                    const targetPosition = elementTop + 50;
+                    
+                    window.scrollTo({
+                      top: targetPosition,
+                      behavior: 'smooth'
+                    });
+                    
+                    setTimeout(() => {
+                      setCurrentStep(1);
+                    }, 1000);
+                  }
+                }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors bg-[#AAD1FF]/60 text-white hover:bg-white hover:text-[#AAD1FF]"
               >
                 1
@@ -400,7 +484,23 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               
               {/* STEP 2 */}
               <button 
-                onClick={() => scrollToStep(2)}
+                onClick={() => {
+                  // STEP 2 위 빈 컨테이너와 겹치는 위치로 이동
+                  const gapElement = document.querySelector('[data-gap="1"]');
+                  if (gapElement) {
+                    const elementTop = gapElement.offsetTop;
+                    const targetPosition = elementTop;
+                    
+                    window.scrollTo({
+                      top: targetPosition,
+                      behavior: 'smooth'
+                    });
+                    
+                    setTimeout(() => {
+                      setCurrentStep(2);
+                    }, 1000);
+                  }
+                }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors bg-[#AAD1FF]/60 text-white hover:bg-white hover:text-[#AAD1FF]"
               >
                 2
@@ -411,7 +511,23 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               
               {/* STEP 3 */}
               <button 
-                onClick={() => scrollToStep(3)}
+                onClick={() => {
+                  // STEP 3 위 빈 컨테이너와 겹치는 위치로 이동
+                  const gapElement = document.querySelector('[data-gap="2"]');
+                  if (gapElement) {
+                    const elementTop = gapElement.offsetTop;
+                    const targetPosition = elementTop;
+                    
+                    window.scrollTo({
+                      top: targetPosition,
+                      behavior: 'smooth'
+                    });
+                    
+                    setTimeout(() => {
+                      setCurrentStep(3);
+                    }, 1000);
+                  }
+                }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors bg-[#AAD1FF]/60 text-white hover:bg-white hover:text-[#AAD1FF]"
               >
                 3
@@ -422,11 +538,28 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               
               {/* STEP 4 */}
               <button 
-                onClick={() => scrollToStep(4)}
+                onClick={() => {
+                  // STEP 4 위 빈 컨테이너와 겹치는 위치로 이동
+                  const gapElement = document.querySelector('[data-gap="3"]');
+                  if (gapElement) {
+                    const elementTop = gapElement.offsetTop;
+                    const targetPosition = elementTop;
+                    
+                    window.scrollTo({
+                      top: targetPosition,
+                      behavior: 'smooth'
+                    });
+                    
+                    setTimeout(() => {
+                      setCurrentStep(4);
+                    }, 1000);
+                  }
+                }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors bg-[#AAD1FF]/60 text-white hover:bg-white hover:text-[#AAD1FF]"
               >
                 4
               </button>
+              </div>
             </div>
           </>
         )}
@@ -435,6 +568,11 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       {/* Progress Indicator 아래 추가 스텝 1~4 */}
       {steps.map((step, index) => (
         <React.Fragment key={`additional-${step.id}`}>
+          {/* STEP 사이 80px 빈 컨테이너 (1과 2, 2와 3, 3과 4 사이) - 인디케이터와 같은 높이 */}
+          {index > 0 && (
+            <div data-gap={index} className="relative w-full h-[80px] z-10" style={{ backgroundColor: '#75B4FF' }}></div>
+          )}
+          
           <div
             data-step={step.id}
             className={`relative w-full flex flex-col items-center justify-center px-6 ${
