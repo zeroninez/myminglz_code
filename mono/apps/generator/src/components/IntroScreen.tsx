@@ -202,7 +202,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
     <main ref={containerRef} className="relative min-h-screen overflow-y-auto">
       {/* 고정된 Progress Indicator (상단) - STEP 1-4에서만 표시 */}
       {currentStep > 0 && (
-        <div className="fixed top-0 left-0 right-0 z-50" style={{ backgroundColor: '#75B4FF' }}>
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#75B4FF]">
           {/* Progress Indicator 영역 */}
           <div className="w-full h-[80px] flex items-end justify-center pb-3">
             {/* 하단 스텝 표시기 */}
@@ -449,7 +449,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
       </div>
 
       {/* Progress Indicator 컨테이너 (하단 122px) */}
-      <div data-progress-indicator className="relative w-full h-[122px]" style={{ backgroundColor: '#75B4FF' }}>
+      <div data-progress-indicator className="relative w-full h-[122px] bg-[#75B4FF]">
         {currentStep === 0 && (
           <>
             {/* Progress Indicator 영역 */}
