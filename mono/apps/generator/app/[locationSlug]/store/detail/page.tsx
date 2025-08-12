@@ -180,9 +180,9 @@ export default function StoreDetailPage() {
        <div className="fixed bottom-6 left-6 right-6">
          <button 
            onClick={() => {
-             // 카카오맵 웹으로 열기
+             // 카카오맵 웹으로 열기 (현재 탭에서 열기)
              const webUrl = `https://map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
-             window.open(webUrl, '_blank');
+             window.location.href = webUrl;
            }}
            className="w-full bg-black text-white py-4 rounded-lg font-medium text-lg"
          >
