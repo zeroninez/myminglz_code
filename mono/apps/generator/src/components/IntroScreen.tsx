@@ -506,13 +506,13 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           
           <div
             data-step={step.id}
-            className={`relative w-full flex flex-col items-center justify-center px-6 ${
+            className={`relative w-full flex flex-col items-center justify-start px-6 pt-[60px] ${
               step.id === 4 ? 'min-h-screen' : 'h-[534px]'
-            } pt-[122px]`}
+            }`}
             style={{ backgroundColor: '#75B4FF' }}
           >
           {/* 스텝 라벨 */}
-          <div className="rounded-full mb-6 flex items-center justify-center" style={{ backgroundColor: 'black', color: '#65a7f6', width: '61px', height: '22px' }}>
+          <div className="rounded-full mt-[1px] mb-6 flex items-center justify-center" style={{ backgroundColor: 'black', color: '#65a7f6', width: '61px', height: '22px' }}>
             <span className="text-[13px] font-bold">{step.title}</span>
           </div>
 
