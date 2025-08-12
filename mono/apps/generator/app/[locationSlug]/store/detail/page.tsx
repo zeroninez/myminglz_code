@@ -181,7 +181,7 @@ export default function StoreDetailPage() {
          <button 
            onClick={() => {
              // 카카오맵 웹사이트로만 열기 (앱 전환 방지, 주소 전달 보장)
-             const webUrl = `https://map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
+             const webUrl = `https://m.map.kakao.com/link/search/${encodeURIComponent(dummyStoreDetail.address)}`;
              // 새 탭에서 열기로 앱 전환 방지
              window.open(webUrl, '_blank');
            }}
