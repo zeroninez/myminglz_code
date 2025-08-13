@@ -665,7 +665,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 
                       {/* 나머지 혜택들 (버튼 클릭 후 보임) */}
                       {showAllBenefits && (
-                        <div className="space-y-3 animate-fadeIn">
+                        <div className="space-y-3 animate-fadeIn pb-24">
                           {benefits.slice(1).map((store) => (
                             <div key={store.id} className="flex mb-3 animate-slideUp">
                               {/* 왼쪽 컨테이너 (썸네일) */}

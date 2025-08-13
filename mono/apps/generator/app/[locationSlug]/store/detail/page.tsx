@@ -139,8 +139,8 @@ export default function StoreDetailPage() {
         </div>
       </div>
 
-      {/* 메뉴 목록 */}
-      <div className="px-6 pb-6">
+             {/* 메뉴 목록 */}
+       <div className="px-6 pb-24">
         <div className="space-y-4">
           {dummyStoreDetail.menu.map((item, index) => (
             <div key={index} className="flex gap-4 p-4 bg-gray-50 rounded-lg">
