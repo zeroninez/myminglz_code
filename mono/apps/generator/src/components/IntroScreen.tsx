@@ -409,18 +409,32 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
           </button>
         </div>
 
-        {/* 이벤트 참여하기 버튼 */}
-        <div className="w-full mt-[-40px] mb-[40px] relative z-30">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onNext();
-            }}
-            className="w-[344px] h-[52px] bg-black text-white text-[16px] font-medium rounded-[12px] mx-auto block relative z-30"
-          >
-            이벤트 참여하기
-          </button>
-        </div>
+      </div>
+
+      {/* 이벤트 참여하기 버튼 - 하단 고정 (main 밖으로 이동) */}
+      <div 
+        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 w-full max-w-[393px]" 
+        style={{ 
+          zIndex: 99999, 
+          position: 'fixed',
+          isolation: 'isolate'
+        }}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext();
+          }}
+          className="w-full h-[52px] bg-black text-white text-[16px] font-medium rounded-[12px] shadow-2xl border border-gray-700"
+          style={{ 
+            position: 'relative',
+            zIndex: 99999,
+            transform: 'translateZ(0)',
+            willChange: 'transform'
+          }}
+        >
+          이벤트 참여하기
+        </button>
       </div>
 
       {/* Progress Indicator 컨테이너 (하단 122px) */}
