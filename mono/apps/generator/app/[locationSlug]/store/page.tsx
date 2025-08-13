@@ -50,7 +50,7 @@ export default function StorePage() {
   }, []);
 
   return (
-    <div className="h-full relative w-[auto] mx-auto" style={{
+    <div className="h-screen relative w-[auto] mx-auto overflow-hidden" style={{
       background: `linear-gradient(
         to top,
         #b8d8ff 0px,
@@ -72,7 +72,7 @@ export default function StorePage() {
       />
 
       {/* 메인 컨텐츠 */}
-      <div className="relative z-10">
+      <div className="relative z-10 h-full flex flex-col">
         {/* 헤더 */}
         <div className="relative px-5 pt-10 pb-6">
           <button 
@@ -95,7 +95,7 @@ export default function StorePage() {
         </div>
 
         {/* 혜택 목록 컨테이너 */}
-        <div className="flex justify-center px-5 pb-20">
+        <div className="flex justify-center px-5 pb-20 flex-1 overflow-y-auto">
           <div className="relative w-[370px]">
             {/* 반투명 배경 컨테이너 */}
             <div className="absolute inset-0 bg-[rgba(211,231,255,0.3)] rounded-[8px]" />

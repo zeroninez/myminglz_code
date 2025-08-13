@@ -342,7 +342,7 @@ export default function SuccessPage() {
   }
 
   return (
-    <div className="min-h-screen mx-auto">
+    <div className="min-h-screen mx-auto overflow-hidden">
       <div className="relative w-[auto] min-h-screen mx-auto overflow-hidden" style={{
         background: `linear-gradient(
           to top,
@@ -365,7 +365,7 @@ export default function SuccessPage() {
         />
 
         {/* 메인 컨텐츠 */}
-        <div className="relative z-10 flex flex-col items-center justify-start min-h-screen px-6 pt-[80px]">
+        <div className="relative z-10 flex flex-col items-center justify-start h-screen px-6 pt-[80px] overflow-hidden">
           <h2 className="text-[28px] font-bold text-white mb-3">
             쿠폰 발급 완료!
           </h2>

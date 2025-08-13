@@ -136,7 +136,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
   // isSharing 중에도 기존 포토 페이지 유지
 
   return (
-    <div className="relative w-[393px] h-[852px] mx-auto overflow-hidden bg-[#E8EFF3]">
+    <div className="relative w-full max-w-[393px] h-screen mx-auto overflow-hidden bg-[#E8EFF3]">
       {/* 배경 패턴 */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none"

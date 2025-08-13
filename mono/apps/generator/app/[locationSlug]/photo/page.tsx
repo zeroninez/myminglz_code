@@ -69,7 +69,7 @@ export default function PhotoPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: '#DEE7EC' }}>
+    <div className="min-h-screen overflow-hidden" style={{ backgroundColor: '#DEE7EC' }}>
       {/* 배경 그리드 */}
       <div 
         className="fixed inset-0"
