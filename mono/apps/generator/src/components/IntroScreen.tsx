@@ -753,11 +753,19 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
               width: '400px', 
               height: '400px' 
             }}>
-              <img
-                src={step.image}
-                alt={`Additional Step ${step.id}`}
-                className="w-full h-full object-contain"
-              />
+              {/* 이미지 컨테이너 - STEP 2만 19px 이동 */}
+              <div 
+                className="relative transition-transform duration-300"
+                style={{
+                  transform: `translateX(${step.id === 2 ? '20px' : '0px'})`
+                }}
+              >
+                <img
+                  src={step.image}
+                  alt={`Additional Step ${step.id}`}
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </div>
           )}
           </div>

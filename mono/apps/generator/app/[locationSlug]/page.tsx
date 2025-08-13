@@ -69,10 +69,10 @@ export default function LocationGeneratorPage() {
   // 로딩 중일 때
   if (isPageLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-100 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#479BFF' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-emerald-700 font-medium">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+          <p className="text-white font-medium">
             장소 정보를 불러오는 중...
           </p>
         </div>
