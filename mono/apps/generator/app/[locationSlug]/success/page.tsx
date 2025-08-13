@@ -30,6 +30,12 @@ export default function SuccessPage() {
   const qrRef = useRef<HTMLCanvasElement>(null);
   const { generateFilename } = useTimestamp();
 
+  // 페이지 진입 시 스크롤 위치 초기화
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0; // Safari 대응
+  }, []);
+
   // 장소 정보 로드
   useEffect(() => {
     const loadLocation = async () => {
