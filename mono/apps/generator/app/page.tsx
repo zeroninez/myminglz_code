@@ -2,17 +2,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { EnhancedCouponService } from "@repo/api";
+import { EnhancedCouponService, Location } from "@repo/api";
 import Link from "next/link";
-
-// Local type definition for build stability
-interface Location {
-  id: string;
-  name: string;
-  slug: string;
-  address?: string;
-  description?: string;
-}
 
 const couponService = new EnhancedCouponService({
   supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!,
