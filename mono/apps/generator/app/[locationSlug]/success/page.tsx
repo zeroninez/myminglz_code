@@ -310,7 +310,7 @@ export default function SuccessPage() {
           <div className="absolute bottom-6 left-0 right-0 flex justify-center">
             <button
               onClick={onDownload}
-              className="flex items-center justify-start gap-1 bg-[#D0E0FF]/80 backdrop-blur-sm rounded-full border border-white/30 hover:bg-[#D0E0FF]/90 transition-all duration-200 pl-4"
+              className="flex items-center justify-start gap-1 bg-[#8BB3E5]/80 backdrop-blur-sm rounded-full border border-white/30 hover:bg-[#8BB3E5]/90 transition-all duration-200 pl-4"
               style={{ width: '136px', height: '37px' }}
             >
               <img
@@ -370,8 +370,8 @@ export default function SuccessPage() {
             쿠폰 발급 완료!
           </h2>
           <p className="text-[17px] text-white mb-[40px] text-center">
-            {location.name} 방문 인증이 완료되었어요<br />
-            쿠폰을 다운받아 다양한 혜택을 받아보세요!
+            잠깐, 이미지 저장 버튼 클릭은 필수!<br />
+            이미지를 저장해야 다양한 혜택을 받을 수 있어요!
           </p>
 
           {savedImageUrl && (

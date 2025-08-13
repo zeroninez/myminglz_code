@@ -133,76 +133,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
     if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
-  if (isSharing) {
-    return (
-      <div className="relative w-[393px] h-[852px] mx-auto overflow-hidden bg-[#E8EFF3]">
-        {/* 배경 패턴 */}
-        <div 
-          className="absolute inset-0 z-0 pointer-events-none"
-          style={{
-            backgroundImage: `url('/pattern.png')`,
-            backgroundSize: '100% auto',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'repeat',
-            mixBlendMode: 'multiply',
-            opacity: 0.5
-          }}
-        />
-
-        {/* 배경 그리드 */}
-        <div 
-          className="absolute inset-0 z-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(182, 215, 255, 0.3) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(182, 215, 255, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '24px 24px'
-          }}
-        />
-
-        <div className="relative z-10 flex items-center justify-center h-full">
-          <div className="text-center">
-            <h2 className="text-[28px] text-gray-600 font-bold mb-2">공유 인증 중</h2>
-            <p className="text-[17px] text-gray-600 mb-12">
-              공유 인증을 확인하고 있어요<br />
-              잠시만 기다려 주세요!
-            </p>
-            <div className="relative w-[120px] h-[120px] mx-auto">
-              {/* 고정된 로딩 애니메이션 */}
-              <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 120 120">
-                <circle
-                  cx="60"
-                  cy="60"
-                  r="57"
-                  stroke="#479BFF"
-                  strokeWidth="6"
-                  fill="none"
-                  strokeDasharray="358.14"
-                  strokeDashoffset="0"
-                  style={{ 
-                    animation: 'spin 2s linear infinite',
-                    transformOrigin: 'center'
-                  }}
-                />
-              </svg>
-              {/* 임시 더미 이미지 (원형으로 잘린 검은색 배경) */}
-              <div className="absolute inset-[8px] bg-black rounded-full flex items-center justify-center">
-                <span className="text-white text-4xl"></span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <style jsx>{`
-          @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
-      </div>
-    );
-  }
+  // isSharing 중에도 기존 포토 페이지 유지
 
   return (
     <div className="relative w-[393px] h-[852px] mx-auto overflow-hidden bg-[#E8EFF3]">
