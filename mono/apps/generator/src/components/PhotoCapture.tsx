@@ -2,7 +2,15 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import type { Location } from "@repo/api";
+
+// Local type definition for build stability
+interface Location {
+  id: string;
+  name: string;
+  slug: string;
+  address?: string;
+  description?: string;
+}
 
 export interface PhotoCaptureProps {
   location: Location;
