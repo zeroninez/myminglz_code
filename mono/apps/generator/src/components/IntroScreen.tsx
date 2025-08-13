@@ -370,8 +370,8 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 
             {/* 하단 텍스트 */}
             <div className="mt-3 flex justify-center">
-              <div className="text-[#479BFF] text-[13px] font-bold border border-[#479BFF] rounded-[6px] px-3 py-1">
-                HECHI X ASTEROIDER
+              <div className="text-[#479BFF] text-[13px] font-bold rounded-[6px] px-3 py-1">
+                HECHI X MINGLZ
               </div>
             </div>
           </div>
@@ -413,7 +413,7 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
 
       {/* 이벤트 참여하기 버튼 - 하단 고정 (main 밖으로 이동) */}
       <div 
-        className="fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 w-full max-w-[393px]" 
+        className="fixed bottom-8 left-1/2 transform -translate-x-1/2 px-4 w-full max-w-[393px]" 
         style={{ 
           zIndex: 99999, 
           position: 'fixed',
