@@ -141,7 +141,9 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       style={{ 
         minHeight: '100vh',
         height: '100vh',
-        maxHeight: '100vh'
+        maxHeight: '100vh',
+        overflow: 'auto',
+        WebkitOverflowScrolling: 'touch'
       }}
     >
       {/* 배경 패턴 */}
@@ -214,7 +216,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
         </div>
 
         {/* 버튼 영역 */}
-        <div className="mt-6 space-y-3">
+        <div className="mt-auto pt-6 space-y-3" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           {capturedPhoto ? (
             <div className="flex gap-3">
             <button
