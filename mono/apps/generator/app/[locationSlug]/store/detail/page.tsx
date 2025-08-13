@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface StoreDetail {
   name: string;
@@ -75,6 +75,7 @@ const dummyStoreDetail: StoreDetail = {
 
 export default function StoreDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const { locationSlug } = params;
 
   return (
@@ -96,8 +97,12 @@ export default function StoreDetailPage() {
           </div>
         </div>
         
-        {/* 이미지 네비게이션 화살표 */}
-        <button className="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+        {/* 뒤로가기 버튼 */}
+        <button 
+          onClick={() => router.back()}
+          className="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30 transition-colors"
+          aria-label="뒤로가기"
+        >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
             <path d="M15 18l-6-6 6-6" />
           </svg>
