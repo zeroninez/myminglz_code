@@ -78,7 +78,7 @@ export default function StoreDetailPage() {
   const { locationSlug } = params;
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white" style={{ overscrollBehavior: 'none' }}>
       {/* 상단 헤더 및 이미지 캐러셀 */}
       <div className="relative w-full h-[400px] overflow-hidden">
         {/* 메인 이미지 */}
