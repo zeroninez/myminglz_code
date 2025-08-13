@@ -136,7 +136,14 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
   // isSharing 중에도 기존 포토 페이지 유지
 
   return (
-    <div className="relative w-full max-w-[393px] h-screen mx-auto overflow-hidden bg-[#E8EFF3]">
+    <div 
+      className="relative w-full max-w-[393px] mx-auto bg-[#E8EFF3]" 
+      style={{ 
+        minHeight: '100vh',
+        height: '100vh',
+        maxHeight: '100vh'
+      }}
+    >
       {/* 배경 패턴 */}
       <div 
         className="absolute inset-0 z-0 pointer-events-none"
@@ -163,7 +170,7 @@ export function PhotoCapture({ location, onPhotoUploaded, onError, initialPhoto 
       />
 
       {/* 메인 컨텐츠 */}
-      <div className="relative z-10 h-full flex flex-col px-6 py-8">
+      <div className="relative z-10 h-full flex flex-col px-6 py-4 pb-8" style={{ minHeight: '100vh' }}>
         {/* 타이틀 */}
         <div className="text-center mb-4">
           <div className="inline-block bg-black text-[#82BBFF] text-[13px] font-medium px-3 py-1 rounded-full mb-3">
