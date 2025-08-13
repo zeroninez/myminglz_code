@@ -410,13 +410,13 @@ export default function IntroScreen({ onNext }: IntroScreenProps) {
         </div>
 
         {/* 이벤트 참여하기 버튼 */}
-        <div className="w-full mt-[-40px] mb-[40px]">
+        <div className="w-full mt-[-40px] mb-[40px] relative z-30">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onNext();
             }}
-            className="w-[344px] h-[52px] bg-black text-white text-[16px] font-medium rounded-[12px] mx-auto block"
+            className="w-[344px] h-[52px] bg-black text-white text-[16px] font-medium rounded-[12px] mx-auto block relative z-30"
           >
             이벤트 참여하기
           </button>
