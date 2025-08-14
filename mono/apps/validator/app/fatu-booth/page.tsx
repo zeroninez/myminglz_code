@@ -1,4 +1,4 @@
-// apps/validator/app/patu-booth/page.tsx
+// apps/validator/app/fatu-booth/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -10,7 +10,7 @@ const couponService = new EnhancedCouponService({
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 });
 
-export default function PatuBoothPage() {
+export default function FatuBoothPage() {
   const [store, setStore] = useState<any>(null);
   const [couponCode, setCouponCode] = useState("");
   const [isValidating, setIsValidating] = useState(false);
@@ -22,7 +22,7 @@ export default function PatuBoothPage() {
   }, []);
 
   const loadStore = async () => {
-    const storeData = await couponService.getStoreBySlug("patu-booth");
+    const storeData = await couponService.getStoreBySlug("fatu-booth");
     setStore(storeData);
   };
 
@@ -40,7 +40,7 @@ export default function PatuBoothPage() {
     try {
       const validationResult = await couponService.validateCodeAtStore(
         couponCode.trim(),
-        "patu-booth"
+        "fatu-booth"
       );
 
       setResult(validationResult);
@@ -72,7 +72,7 @@ export default function PatuBoothPage() {
       <div className="min-h-screen bg-pink-500 flex items-center justify-center">
         <div className="text-white text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Patu Booth 로딩 중...</p>
+          <p>Fatu Booth 로딩 중...</p>
         </div>
       </div>
     );
@@ -85,7 +85,7 @@ export default function PatuBoothPage() {
         <div className="max-w-md mx-auto px-6 py-6">
           <div className="text-center">
             <div className="text-4xl mb-2">🏪</div>
-            <h1 className="text-2xl font-bold text-white">Patu Booth</h1>
+            <h1 className="text-2xl font-bold text-white">Fatu Booth</h1>
             <p className="text-white/80">쿠폰 검증 시스템</p>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function PatuBoothPage() {
           <div className="text-center mb-8">
             <div className="text-6xl mb-4">🎫</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">쿠폰 검증</h2>
-            <p className="text-gray-600">고객의 Patu 쿠폰을 검증해주세요</p>
+            <p className="text-gray-600">고객의 Fatu 쿠폰을 검증해주세요</p>
           </div>
 
           {/* QR 스캔 */}
@@ -149,7 +149,7 @@ export default function PatuBoothPage() {
           <div className="bg-purple-50 rounded-xl p-4">
             <h3 className="font-medium text-purple-900 mb-2">💡 검증 안내</h3>
             <div className="space-y-1 text-sm text-purple-700">
-              <p>• Patu Event에서 발급된 쿠폰만 사용 가능</p>
+              <p>• Fatu Event에서 발급된 쿠폰만 사용 가능</p>
               <p>• 한 번 사용된 쿠폰은 재사용 불가</p>
               <p>• 유효한 쿠폰 확인 시 혜택 제공</p>
             </div>
@@ -185,7 +185,7 @@ export default function PatuBoothPage() {
               {result?.success && result?.isValid && !result?.isUsed && (
                 <div className="bg-green-50 rounded-xl p-4 mb-6">
                   <p className="text-green-800 font-medium">
-                    🎉 Patu 혜택을 제공해주세요!
+                    🎉 Fatu 혜택을 제공해주세요!
                   </p>
                 </div>
               )}

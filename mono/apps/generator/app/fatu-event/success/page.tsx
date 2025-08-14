@@ -1,4 +1,4 @@
-// apps/generator/app/patu-event/success/page.tsx
+// apps/generator/app/fatu-event/success/page.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -12,7 +12,7 @@ const couponService = new EnhancedCouponService({
   supabaseKey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 });
 
-export default function PatuSuccessPage() {
+export default function FatuSuccessPage() {
   const [location, setLocation] = useState<any>(null);
   const [generatedCode, setGeneratedCode] = useState<string>("");
   const [savedImageUrl, setSavedImageUrl] = useState<string | null>(null);
@@ -26,7 +26,7 @@ export default function PatuSuccessPage() {
   }, []);
 
   const loadLocationAndGenerateCoupon = async () => {
-    const locationData = await couponService.getLocationBySlug("patu-event");
+    const locationData = await couponService.getLocationBySlug("fatu-event");
     setLocation(locationData);
 
     if (locationData) {
@@ -38,13 +38,13 @@ export default function PatuSuccessPage() {
     setIsLoading(true);
 
     try {
-      const result = await couponService.generateCodeForLocation("patu-event");
+      const result = await couponService.generateCodeForLocation("fatu-event");
       if (result.success && result.code) {
         setGeneratedCode(result.code);
 
         const saveResult = await couponService.saveCodeForLocation(
           result.code,
-          "patu-event"
+          "fatu-event"
         );
         if (saveResult.success) {
           // QR 코드 이미지 생성
@@ -79,7 +79,7 @@ export default function PatuSuccessPage() {
   const handleDownload = () => {
     if (savedImageUrl) {
       const link = document.createElement("a");
-      link.download = generateFilename(`patu-${generatedCode}`);
+      link.download = generateFilename(`fatu-${generatedCode}`);
       link.href = savedImageUrl;
       link.click();
     }
@@ -92,18 +92,18 @@ export default function PatuSuccessPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#FF6B9D" }}>
       <div className="pt-20 text-center text-white">
-        <h1 className="text-3xl font-bold mb-4">🎉 Patu 쿠폰 발급 완료!</h1>
+        <h1 className="text-3xl font-bold mb-4">🎉 Fatu 쿠폰 발급 완료!</h1>
         <p className="text-lg mb-8">
           아래 쿠폰을 저장하고
           <br />
-          Patu Booth에서 사용하세요!
+          Fatu Booth에서 사용하세요!
         </p>
 
         {isLoading ? (
           <div>쿠폰 생성 중...</div>
         ) : savedImageUrl ? (
           <div className="bg-white rounded-xl p-6 mx-6 max-w-sm mx-auto">
-            <img src={savedImageUrl} alt="Patu 쿠폰" className="w-full mb-4" />
+            <img src={savedImageUrl} alt="Fatu 쿠폰" className="w-full mb-4" />
             <div className="text-2xl font-bold text-gray-800 mb-4">
               {generatedCode}
             </div>
@@ -118,10 +118,10 @@ export default function PatuSuccessPage() {
 
         <div className="mt-8">
           <button
-            onClick={() => (window.location.href = "/patu-event/booth")}
+            onClick={() => (window.location.href = "/fatu-event/booth")}
             className="bg-white text-pink-500 px-8 py-3 rounded-lg font-bold"
           >
-            🏪 Patu Booth 가기
+            🏪 Fatu Booth 가기
           </button>
         </div>
       </div>
