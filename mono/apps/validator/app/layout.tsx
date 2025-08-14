@@ -3,8 +3,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "쿠펀 - 인증 앱",
-  description: "방문 증명 쿠폰을 확인하세요",
+  title: "QR Minglz | 인증",
+  description: "Mynglz의 QR 코드 인증 앱입니다.",
 };
 
 export default function RootLayout({
@@ -12,5 +12,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <Layout title={"쿠펀 - 인증 앱"}>{children}</Layout>;
+  return <Layout title={"QR Minglz | 인증"}>{children}</Layout>;
 }
