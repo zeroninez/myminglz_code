@@ -644,4 +644,153 @@ export class EnhancedCouponService {
       };
     }
   }
+
+  /**
+   * 장소 생성
+   */
+  async createLocation(data: {
+    name: string;
+    slug: string;
+    description?: string;
+  }) {
+    try {
+      const { data: result, error } = await this.supabase
+        .from("locations")
+        .insert([{ ...data, is_active: true }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, location: result };
+    } catch (error) {
+      return { success: false, error: "장소 생성 실패" };
+    }
+  }
+
+  /**
+   * 장소 수정
+   */
+  async updateLocation(id: string, data: any) {
+    try {
+      const { data: result, error } = await this.supabase
+        .from("locations")
+        .update(data)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, location: result };
+    } catch (error) {
+      return { success: false, error: "장소 수정 실패" };
+    }
+  }
+
+  /**
+   * 장소 삭제
+   */
+  async deleteLocation(id: string) {
+    try {
+      const { error } = await this.supabase
+        .from("locations")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "장소 삭제 실패" };
+    }
+  }
+
+  /**
+   * 가게 생성
+   */
+  async createStore(data: {
+    name: string;
+    slug: string;
+    location_id: string;
+    description?: string;
+  }) {
+    try {
+      const { data: result, error } = await this.supabase
+        .from("stores")
+        .insert([{ ...data, is_active: true }])
+        .select(`*, location:locations(*)`)
+        .single();
+
+      if (error) throw error;
+      return { success: true, store: result };
+    } catch (error) {
+      return { success: false, error: "가게 생성 실패" };
+    }
+  }
+
+  /**
+   * 가게 수정
+   */
+  async updateStore(id: string, data: any) {
+    try {
+      const { data: result, error } = await this.supabase
+        .from("stores")
+        .update(data)
+        .eq("id", id)
+        .select(`*, location:locations(*)`)
+        .single();
+
+      if (error) throw error;
+      return { success: true, store: result };
+    } catch (error) {
+      return { success: false, error: "가게 수정 실패" };
+    }
+  }
+
+  /**
+   * 가게 삭제
+   */
+  async deleteStore(id: string) {
+    try {
+      const { error } = await this.supabase
+        .from("stores")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: "가게 삭제 실패" };
+    }
+  }
+
+  /**
+   * 모든 장소 조회 (관리자용)
+   */
+  async getAllLocationsForAdmin() {
+    try {
+      const { data, error } = await this.supabase
+        .from("locations")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      return data || [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  /**
+   * 모든 가게 조회 (관리자용)
+   */
+  async getAllStoresForAdmin() {
+    try {
+      const { data, error } = await this.supabase
+        .from("stores")
+        .select(`*, location:locations(*)`)
+        .order("created_at", { ascending: false });
+
+      return data || [];
+    } catch (error) {
+      return [];
+    }
+  }
 }
